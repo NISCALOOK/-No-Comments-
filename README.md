@@ -1,4 +1,7 @@
 # ClassMate AI: Tu Asistente de Clases 🎓
+<div id="header" align="left">
+  <img src="ClassMateAI.png" width="600"/>
+</div>
 
 ---
 
