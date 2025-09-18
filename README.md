@@ -37,5 +37,5 @@ Este proyecto es desarrollado por el grupo **# -No-Comments-** para la asignatur
 | :-------------------------- | :------------------------------ |
 | Nicolás Rodríguez Tapia | `nrodriguezt@unal.edu.co` |
 | Juan David Alarcón Sanabria | `jualarcons@unal.edu.co` |
-| José Leonardo Pinilla Zamora | `jopinillaz@unal.edu.co` |
+| José Leonardo Pinilla Zamora | `jpinillaz@unal.edu.co` |
 | David Nicolás Urrego Botero | `daurrego@unal.edu.co` |
