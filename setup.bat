@@ -14,15 +14,15 @@ echo [Paso 2/5] Iniciando base de datos PostgreSQL...
 docker compose up -d
 cd Proyecto\holamundo
 
-REM [Paso 2] Instalar dependencias
+REM 3. Instalar dependencias
 echo [Paso 3/5] Instalando dependencias del proyecto...
 call mvnw clean install
 
-REM [Paso 3] Ejecutar pruebas basicas
+REM 4. Ejecutar pruebas basicas
 echo [Paso 4/5] Ejecutando pruebas basicas...
 call mvnw test
 
-REM [Paso 4] Ejecucion inicial
-echo --- Configuracion completa. Iniciando el servidor ---
+REM 5. Ejecucion inicial
+echo [Paso 5/5] --- Configuracion completa. Iniciando el servidor ---
 echo Presiona Ctrl+C para detener el servidor
 call mvnw spring-boot:run
