@@ -1,0 +1,1 @@
+INSERT INTO mensaje (texto) VALUES ('Hola Mundo');
