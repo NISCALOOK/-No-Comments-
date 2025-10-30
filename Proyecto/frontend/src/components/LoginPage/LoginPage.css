@@ -1,0 +1,81 @@
+/* src/components/LoginPage/LoginPage.css */
+.login-container {
+display: flex;
+-content: center;
+align-items center;
+min-height 1;
+padding 2rem;
+}
+
+background: white border:16;
+2.5rem -shadow: 0 8px 32px rgba(0, 0,0, .);
+:00%;
+max-width: 20px;
+}
+
+.login-title {
+font-size 2 color #c3e0;
+margin-bottom: 0.5rem;
+font-weight: 600-sub #55;
+font-size: 1rem;
+margin-bottom: 2rem;
+-group -bottom:.rem;
+.form-group: block;
+margin: 05;
+color3-weight 50;
+font-size: .9rem;
+}
+
+.form width:00%;
+padding: px 14;
+border: 1px solid #ddd;
+border: 8px;
+font-size: 16px;
+transition: 0.2s;
+}
+
+.form-group input:focus {
+outline: none;
+border-color: #4a6fa5;
+box-shadow: 0 0 2px rgba(74, 111, 165, 0.2);
+}
+
+.login-form button {
+width100%;
+14px;
+: #4a6fa5;
+color: white;
+border: none;
+-size 16px;
+font:50 cursor: pointer;
+margin-top: 1rem : background-color 0.s}
+
+.login-form:hover {
+background #3a5a8a;
+.login-divider {
+display: flex;
+align-items: center;
+margin: 2rem 0;
+color: #aaa;
+font-size: .9rem;
+}
+
+.login-divider,
+.login-divider:: {
+content: 1;
+-bottom1px solid #ddd;
+}
+
+.login-divider::before {
+margin-right: 1;
+}
+
+-divider:: margin-left 1rem;
+}
+
+.login-footer {
+text-align: center;
+margin-top: 2rem;
+color:555;
+font-size: 0.9rem;
+}
