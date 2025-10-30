@@ -1,32 +1,93 @@
-import React from 'react';
-import GoogleButton from '../GoogleButton/GoogleButton';
+import React, { useState } from 'react';
+import './LoginPage.css';
 
 interface LoginPageProps {
   onRegisterClick: () => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onRegisterClick }) => {
+  // Estados del formulario
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
+  // Estados de UI
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState('');
+
+  // Manejo de envío
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setApiError('');
+
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error('Error en el servidor. Inténtalo más tarde.');
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error en el inicio de sesión');
+      }
+
+      // Persistencia de token
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Redirección
+      window.location.href = '/dashboard';
+    } catch (err: any) {
+      setApiError(err.message || 'Error de conexión. Inténtalo de nuevo.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="form-container">
       <h2 className="form-title">Iniciar Sesión</h2>
-      <form className="form">
+      <form onSubmit={handleSubmit} className="form">
         <div className="form-group">
           <label htmlFor="email">Email</label>
-          <input type="email" id="email" placeholder="tu@email.com" />
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="tu@email.com"
+            required
+          />
         </div>
+        
         <div className="form-group">
           <label htmlFor="password">Contraseña</label>
-          <input type="password" id="password" placeholder="Contraseña" />
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Contraseña"
+            required
+          />
         </div>
-        <button type="submit" className="btn btn-primary">Iniciar Sesión</button>
         
-        <div className="divider">
-          <span className="divider-text"></span>
-        </div>
+        {apiError && <div className="api-error">{apiError}</div>}
         
-        <div className="google-button-container">
-          
-        </div>
+        <button 
+          type="submit" 
+          className="btn btn-primary" 
+          disabled={isLoading}
+        >
+          {isLoading ? 'Iniciando...' : 'Iniciar Sesión'}
+        </button>
         
         <div className="form-footer">
           ¿No tienes cuenta?{' '}
