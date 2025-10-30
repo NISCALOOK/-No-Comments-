@@ -1,0 +1,210 @@
+/* Fondo de la página con degradado rojo-negro */
+body {
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(ellipse at center, #1a0000 0%, #000000 100%);
+  color: #fff;
+  font-family: 'Arial', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Contenedor principal del formulario */
+.form-container {
+  width: 100%;
+  max-width: 450px;
+  background: rgba(20, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.5),
+    0 5px 15px rgba(255, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto de borde brillante */
+.form-container::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #ff0000, #8b0000, #ff0000);
+  border-radius: 20px;
+  opacity: 0.5;
+  z-index: -1;
+  animation: borderGlow 3s linear infinite;
+}
+
+@keyframes borderGlow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* Título del formulario */
+.form-title {
+  font-size: 2.5rem;
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 35px;
+  background: linear-gradient(
+    90deg, 
+    #ff6666 0%, 
+    #ff9999 25%, 
+    #ffcccc 50%, 
+    #ff9999 75%, 
+    #ff6666 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(255, 102, 102, 0.5);
+  animation: gradientShift 5s ease infinite;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Formulario */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* Grupos de formulario */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Etiquetas */
+.form-group label {
+  color: #ff9999;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Inputs */
+.form input {
+  padding: 15px 20px;
+  background: rgba(40, 0, 0, 0.6);
+  border: 1px solid rgba(255, 50, 50, 0.3);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.form input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.form input:focus {
+  border-color: rgba(255, 100, 100, 0.6);
+  background: rgba(60, 0, 0, 0.7);
+  box-shadow: 
+    0 0 15px rgba(255, 100, 100, 0.3),
+    inset 0 1px 3px rgba(255, 255, 255, 0.1);
+}
+
+/* Botón de registro */
+.btn {
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    0 5px 15px rgba(255, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #8b0000 0%, #cc0000 50%, #ff0000 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #cc0000 0%, #ff0000 50%, #ff3333 100%);
+  transform: translateY(-3px);
+  box-shadow: 
+    0 8px 25px rgba(255, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* Botón de enlace */
+.link-button {
+  background: none;
+  border: none;
+  color: #ff9999;
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: underline;
+  transition: all 0.3s ease;
+  padding: 0;
+  margin: 0;
+  font-weight: 500;
+}
+
+.link-button:hover {
+  color: #ffcccc;
+  text-shadow: 0 0 10px rgba(255, 153, 153, 0.8);
+}
+
+/* Pie del formulario */
+.form-footer {
+  text-align: center;
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+}
+
+/* Animación del gradiente */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Diseño responsivo */
+@media (max-width: 768px) {
+  .form-container {
+    padding: 30px 20px;
+    margin: 20px;
+  }
+  
+  .form-title {
+    font-size: 2rem;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+  
+  .form input {
+    padding: 12px 15px;
+  }
+}
