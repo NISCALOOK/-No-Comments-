@@ -10,7 +10,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "SUPER_SECRET_KEY_CHANGE_THIS";
+    private final String SECRET = "EstaEsUnaClaveSecretaSuperLargaParaClassMateAIQueNadieDebeSaber12345";
 
     public String generateToken(User user) {
         return Jwts.builder()
