@@ -2,6 +2,8 @@ package com.classmateai.backend.auth;
 
 import com.classmateai.backend.entity.User;
 import com.classmateai.backend.repository.UserRepository;
+import com.classmateai.backend.exception.EmailAlreadyExistsException;
+import com.classmateai.backend.exception.InvalidCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +22,7 @@ public class AuthService {
     public void register(AuthController.RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("El correo electrónico ya está en uso");
+            throw new EmailAlreadyExistsException("El correo electrónico ya está en uso");
         }
 
         User user = new User();
@@ -33,10 +35,10 @@ public class AuthService {
 
     public User login(AuthController.LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Credenciales inválidas"));
+                .orElseThrow(() -> new InvalidCredentialsException("Credenciales inválidas"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Credenciales inválidas");
+            throw new InvalidCredentialsException("Credenciales inválidas");
         }
 
         return user;
