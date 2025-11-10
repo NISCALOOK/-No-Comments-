@@ -1,32 +1,9 @@
-import React, { useState } from 'react';
-import WelcomePage from './components/WelcomePage/WelcomePage';
-import LoginPage from './components/LoginPage/LoginPage';
-import RegisterPage from './components/RegisterPage/RegisterPage';
+import { RouterProvider } from 'react-router-dom';
+import router from './routes'; // Importamos el archivo de rutas
 import './styles/App.css';
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'login' | 'register'>('welcome');
-
-  const renderScreen = () => {
-    switch (currentScreen) {
-      case 'welcome':
-        return <WelcomePage onLoginClick={() => setCurrentScreen('login')} onRegisterClick={() => setCurrentScreen('register')} />;
-      case 'login':
-        return <LoginPage onRegisterClick={() => setCurrentScreen('register')} />;
-      case 'register':
-        return <RegisterPage onLoginClick={() => setCurrentScreen('login')} />;
-      default:
-        return <WelcomePage onLoginClick={() => setCurrentScreen('login')} onRegisterClick={() => setCurrentScreen('register')} />;
-    }
-  };
-
-  return (
-    <div className="app-container">
-      <div className="screen-wrapper">
-        {renderScreen()}
-      </div>
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;

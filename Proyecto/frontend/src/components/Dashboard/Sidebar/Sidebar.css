@@ -1,0 +1,101 @@
+/* Estilos para la Sidebar */
+.sidebar {
+  width: 260px;
+  background: #000000; /* Fondo negro absoluto */
+  height: 100vh;
+  padding: 30px 20px;
+  box-shadow: 4px 0 15px rgba(255, 0, 0, 0.3); /* Sombra roja sutil */
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.sidebar h2 {
+  color: #FF0000; /* Rojo intenso */
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-family: 'Montserrat', sans-serif; /* Fuente moderna */
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.sidebar h2:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: #FF0000;
+  border-radius: 2px;
+}
+
+.sidebar .subtitle {
+  color: #FFFFFF; /* Texto blanco */
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 0.9rem;
+  font-weight: 300;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 20px; /* Espaciado generoso */
+  position: relative;
+}
+
+.sidebar nav ul li a {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  color: #FFFFFF; /* Texto blanco */
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 1rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.sidebar nav ul li a:hover {
+  background: rgba(255, 0, 0, 0.1); /* Fondo rojo translúcido */
+  color: #FF0000; /* Texto rojo en hover */
+  transform: translateX(5px);
+}
+
+.sidebar nav ul li.active a {
+  background: #FF0000; /* Fondo rojo */
+  color: #FFFFFF; /* Texto blanco */
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+}
+
+.sidebar nav ul li.active a:hover {
+  background: rgba(255, 0, 0, 0.8); /* Rojo más oscuro en hover */
+}
+
+/* Botón de acción */
+.sidebar .action-button {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  background: #FF0000; /* Fondo rojo */
+  color: #FFFFFF; /* Texto blanco */
+  text-align: center;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3
