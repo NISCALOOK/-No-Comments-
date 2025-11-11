@@ -12,6 +12,7 @@ import TranscriptionViewer from './components/Dashboard/TranscriptionViewer/Tran
 import Export from './components/Dashboard/Export/ExportView';
 import TasksList from './components/Dashboard/Tasks/TasksList';
 import SummaryView from './components/Dashboard/SummaryView/SummaryView';
+import Home from './components/Dashboard/Home/Home'
 
 
 
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
       {
         path: 'export',
         element: <Export />,
+      },
+        {
+        path: 'home',
+        element: <Home />,
       },
     
     ],
