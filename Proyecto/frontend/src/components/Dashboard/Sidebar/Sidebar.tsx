@@ -14,8 +14,8 @@ const Sidebar = () => {
       <h2>Menú</h2>
       <nav>
         <ul>
-          <li className={isActive('/dashboard') ? 'active' : ''}>
-            <Link to="/dashboard">Inicio</Link>
+          <li className={isActive('/dashboard/home') ? 'active' : ''}>
+            <Link to="/dashboard/home">Inicio</Link>
           </li>
           <li className={isActive('/dashboard/upload') ? 'active' : ''}>
             <Link to="/dashboard/upload">Subir Audio</Link>
@@ -47,7 +47,7 @@ const Sidebar = () => {
             <Link to="/dashboard/export">Exportar</Link>
           </li>
         </ul>
-        <button className="action-button">Comenzar</button>
+        
       </nav>
     </div>
   );

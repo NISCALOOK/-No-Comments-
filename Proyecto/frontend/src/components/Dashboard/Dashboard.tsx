@@ -11,6 +11,7 @@ const Dashboard = () => {
         <div className="content-area">
           <Outlet />
           
+
         </div>
       </div>
     </div>
