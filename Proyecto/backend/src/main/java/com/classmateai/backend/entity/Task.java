@@ -18,7 +18,7 @@ public class Task {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @Enumerated(EnumType.STRING) // Guarda el Enum como "alta", "media", "baja"
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TaskPriority priority = TaskPriority.media;
 
@@ -30,9 +30,15 @@ public class Task {
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // --- Relación ---
-    // Muchas tareas pertenecen a un usuario
+    // --- Relaciones ---
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    // --- ¡AÑADIDO! ---
+    // Muchas tareas (opcionalmente) pertenecen a una transcripción.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transcription_id")
+    private Transcription transcription;
 }

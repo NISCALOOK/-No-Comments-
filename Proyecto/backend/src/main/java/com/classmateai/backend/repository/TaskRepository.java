@@ -7,9 +7,11 @@ import java.util.Optional;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    // SEGURIDAD: Busca una tarea por su 'id' Y que además tenga el 'user_id' específico
+    // (Tus métodos existentes están perfectos)
     Optional<Task> findByIdAndUser_Id(Long taskId, Long userId);
-    
-    // FUNCIONALIDAD: Método necesario para listar tareas del usuario
-    List<Task> findByUser_Id(Long userId); 
+    List<Task> findByUser_Id(Long userId);
+
+    // --- ¡AÑADE ESTE MÉTODO! ---
+    // "Encuentra todas las Task que tengan este transcription_id"
+    List<Task> findByTranscription_Id(Long transcriptionId);
 }
