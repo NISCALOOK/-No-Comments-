@@ -3,6 +3,7 @@ package com.classmateai.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 
 import org.springframework.security.core.GrantedAuthority;
@@ -34,13 +35,17 @@ public class User implements UserDetails {
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    // 🚨 CORRECCIÓN: Usar @ToString.Exclude en colecciones LAZY para evitar errores
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude 
     private Set<Transcription> transcriptions;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude 
     private Set<Task> tasks;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude 
     private Set<Note> notes;
 
     public User(String name, String email, String passwordHash) {
@@ -49,6 +54,7 @@ public class User implements UserDetails {
         this.passwordHash = passwordHash;
     }
 
+    // Métodos de UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList();
@@ -65,22 +71,14 @@ public class User implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+    public boolean isAccountNonExpired() { return true; }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+    public boolean isAccountNonLocked() { return true; }
 
     @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+    public boolean isCredentialsNonExpired() { return true; }
 
     @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    public boolean isEnabled() { return true; }
 }

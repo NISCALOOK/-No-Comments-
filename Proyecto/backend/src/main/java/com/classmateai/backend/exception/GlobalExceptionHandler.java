@@ -13,7 +13,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
 
         return ResponseEntity
-                .status(HttpStatus.CONFLICT) // <-- HTTP 409
+                .status(HttpStatus.CONFLICT) // HTTP 409
                 .body(Map.of("error", ex.getMessage()));
     }
 
@@ -21,7 +21,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleInvalidCredentials(InvalidCredentialsException ex) {
 
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED) // <-- HTTP 401
+                .status(HttpStatus.UNAUTHORIZED) // HTTP 401
+                .body(Map.of("error", ex.getMessage()));
+    }
+    
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleResourceNotFound(ResourceNotFoundException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND) // HTTP 404
                 .body(Map.of("error", ex.getMessage()));
     }
 }
