@@ -1,0 +1,162 @@
+/* Contenedor principal del Dashboard */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background: #000000; /* Fondo negro */
+  color: #FFFFFF; /* Texto blanco */
+}
+
+/* Área de contenido principal */
+.main-content {
+  flex: 1;
+  margin-left: 260px; /* Espacio para el sidebar en desktop */
+  padding-top: 80px; /* Espacio para el header */
+  transition: margin-left 0.3s ease;
+}
+
+/* Área donde se renderiza el contenido */
+.content-area {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 70px; /* Espacio para el sidebar reducido en móviles */
+    padding-top: 70px; /* Espacio ajustado para header en móviles */
+  }
+  
+  .content-area {
+    padding: 20px;
+  }
+}
+
+/* Efectos de transición para cambios de tamaño */
+@media (max-width: 768px) {
+  .dashboard-container {
+    overflow-x: hidden; /* Evitar scroll horizontal */
+  }
+}
+
+/* Animación suave para cambios de estado */
+.content-area {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilos para elementos de contenido */
+.content-area h1 {
+  color: #FF0000; /* Rojo intenso para títulos principales */
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.content-area p {
+  color: #FFFFFF; /* Texto blanco */
+  font-family: 'Montserrat', sans-serif;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.content-area h2 {
+  color: #FF0000; /* Rojo intenso para subtítulos */
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem;
+  margin: 25px 0 15px;
+  font-weight: 600;
+}
+
+/* Botones genéricos en el contenido */
+.content-area button {
+  background: #FF0000; /* Fondo rojo */
+  color: #FFFFFF; /* Texto blanco */
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.content-area button:hover {
+  background: rgba(255, 0, 0, 0.8); /* Rojo más oscuro en hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
+}
+
+/* Tarjetas de contenido */
+.content-area .card {
+  background: rgba(255, 255, 255, 0.05); /* Fondo muy oscuro */
+  border: 1px solid rgba(255, 0, 0, 0.2); /* Borde rojo sutil */
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.content-area .card:hover {
+  border-color: rgba(255, 0, 0, 0.5); /* Borde rojo más intenso en hover */
+  box-shadow: 0 8px 16px rgba(255, 0, 0, 0.2);
+}
+
+/* Listas */
+.content-area ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.content-area li {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.content-area li:last-child {
+  border-bottom: none;
+}
+
+/* Enlaces */
+.content-area a {
+  color: #FF0000; /* Rojo intenso */
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.content-area a:hover {
+  color: #FF3333; /* Rojo más brillante en hover */
+}
+
+/* Formularios */
+.content-area input,
+.content-area textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  color: #FFFFFF;
+  padding: 12px;
+  border-radius: 8px;
+  width: 100%;
+  margin-bottom: 15px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.content-area input:focus,
+.content-area textarea:focus {
+  outline: none;
+  border-color: #FF0000;
+  box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.2);
+}
