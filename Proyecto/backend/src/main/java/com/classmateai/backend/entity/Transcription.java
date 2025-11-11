@@ -3,7 +3,10 @@ package com.classmateai.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString; // Importante
+
 import java.time.LocalDateTime;
+import java.util.Set; // Importante
 
 @Entity
 @Table(name = "transcription")
@@ -22,22 +25,32 @@ public class Transcription {
     private String summary;
     
     @Column(columnDefinition = "TEXT")
-    private String fullText; // El texto completo de Whisper (necesario para tu IA_FLOW_GUIDE)
+    private String fullText;
 
     @Column
-    private String audioFilePath; // La ruta al archivo local (necesario para tu IA_FLOW_GUIDE)
+    private String audioFilePath;
 
     @Column
-    private String status; // Ej: "PROCESSING", "TRANSCRIBED", "COMPLETED", "ERROR"
+    private String status;
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     private LocalDateTime updatedAt;
 
-    // --- Relación ---
-    // Muchas transcripciones pertenecen a un usuario
+    // --- Relaciones ---
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false) // Esta es la llave foránea
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    // --- ¡AÑADIDO! (Relación inversa para Tareas) ---
+    @OneToMany(mappedBy = "transcription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<Task> tasks;
+    
+    // --- ¡AÑADIDO! (Relación inversa para Q&A) ---
+    @OneToMany(mappedBy = "transcription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<QuestionAnswer> questionsAndAnswers;
 }
