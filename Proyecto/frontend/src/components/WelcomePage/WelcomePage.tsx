@@ -1,45 +1,40 @@
 import React, { useLayoutEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import './WelcomePage.css';
 
-interface WelcomePageProps {
-  onLoginClick: () => void;
-  onRegisterClick: () => void;
-}
-
-const WelcomePage: React.FC<WelcomePageProps> = ({ onLoginClick, onRegisterClick }) => {
+const WelcomePage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useLayoutEffect(() => {
+    // ... (mantén todo el código del canvas igual)
     const canvas = canvasRef.current;
     if (!canvas) {
       console.error('Canvas element not found');
       return;
     }
-
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       console.error('Canvas context not available');
       return;
     }
-
+    
     // Configurar tamaño del canvas
     const handleResize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
-
     handleResize();
     window.addEventListener('resize', handleResize);
-
+    
     // Clase Neuron
     class Neuron {
+      // ... (mantén toda la clase Neuron igual)
       x: number;
       y: number;
       vx: number;
       vy: number;
       radius: number;
       pulsePhase: number;
-
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
@@ -48,7 +43,6 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onLoginClick, onRegisterClick
         this.radius = Math.random() * 3 + 1;
         this.pulsePhase = Math.random() * Math.PI * 2;
       }
-
       update() {
         this.x += this.vx;
         this.y += this.vy;
@@ -62,7 +56,6 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onLoginClick, onRegisterClick
         this.x = Math.max(0, Math.min(canvas.width, this.x));
         this.y = Math.max(0, Math.min(canvas.height, this.y));
       }
-
       draw() {
         const pulse = Math.sin(this.pulsePhase) * 0.5 + 0.5;
         const currentRadius = this.radius + pulse * 2;
@@ -88,14 +81,14 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onLoginClick, onRegisterClick
         ctx.fill();
       }
     }
-
+    
     // Crear neuronas
     const neurons: Neuron[] = [];
     const neuronCount = 100;
     for (let i = 0; i < neuronCount; i++) {
       neurons.push(new Neuron());
     }
-
+    
     // Interacción con el mouse
     let mouseX = 0;
     let mouseY = 0;
@@ -123,9 +116,8 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onLoginClick, onRegisterClick
         }
       });
     };
-
     canvas.addEventListener('mousemove', handleMouseMove);
-
+    
     // Dibujar conexiones
     function drawConnections() {
       ctx.strokeStyle = 'rgba(255, 0, 0, 0.1)';
@@ -148,7 +140,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onLoginClick, onRegisterClick
         }
       }
     }
-
+    
     // Bucle de animación
     function animate() {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
@@ -162,9 +154,8 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onLoginClick, onRegisterClick
       
       requestAnimationFrame(animate);
     }
-
     animate();
-
+    
     // Limpiar al desmontar
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -183,12 +174,12 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onLoginClick, onRegisterClick
         <h1 className="welcome-title">ClassMate AI</h1>
         <p className="welcome-subtitle">Tu asistente de aprendizaje inteligente</p>
         <div className="welcome-buttons">
-          <button className="btn btn-primary" onClick={onLoginClick}>
+          <Link to="/login" className="btn btn-primary">
             Iniciar Sesión
-          </button>
-          <button className="btn btn-secondary" onClick={onRegisterClick}>
+          </Link>
+          <Link to="/register" className="btn btn-secondary">
             Registrarse
-          </button>
+          </Link>
         </div>
       </div>
     </div>

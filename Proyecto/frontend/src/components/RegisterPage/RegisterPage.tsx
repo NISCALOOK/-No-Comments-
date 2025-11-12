@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './RegisterPage.css';
 
-interface RegisterPageProps {
-  onLoginClick: () => void;
-}
-
-const RegisterPage: React.FC<RegisterPageProps> = ({ onLoginClick }) => {
+const RegisterPage = () => {
   // Estados del formulario
   const [formData, setFormData] = useState({
     name: '',
@@ -18,7 +15,10 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLoginClick }) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState('');
-
+  
+  // Hook de navegación para redirigir
+  const navigate = useNavigate();
+  
   // Validación en tiempo real
   const validateField = (name: string, value: string) => {
     const newErrors = { ...errors };
@@ -54,14 +54,14 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLoginClick }) => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  
   // Manejo de cambios en inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     validateField(name, value);
   };
-
+  
   // Envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +72,6 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLoginClick }) => {
     );
     
     if (!isValid) return;
-
     setIsLoading(true);
     setApiError('');
     
@@ -84,23 +83,23 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLoginClick }) => {
           name: formData.name,
           email: formData.email,
           password: formData.password
-        })
+        }) 
       });
-
-          let data;
-    try {
-      data = await response.json();
-    } catch (parseError) {
-      // Si no se puede parsear como JSON
-      throw new Error('Error en el servidor. Inténtalo más tarde.');
-    }
-
+      
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        // Si no se puede parsear como JSON
+        throw new Error('Error en el servidor. Inténtalo más tarde.');
+      }
+      
       if (!response.ok) {
         throw new Error(data.error || 'Error en el registro');
       }
-
-      // Redirección exitosa
-      window.location.href = '/login';
+      
+      // Redirección exitosa usando React Router
+      navigate('/login');
     } catch (err: any) {
       setApiError(err.message || 'Error de conexión. Inténtalo de nuevo.');
     } finally {
@@ -180,9 +179,9 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ onLoginClick }) => {
         
         <div className="form-footer">
           ¿Ya tienes cuenta?{' '}
-          <button type="button" className="link-button" onClick={onLoginClick}>
+          <Link to="/login" className="link-button">
             Inicia sesión
-          </button>
+          </Link>
         </div>
       </form>
     </div>
