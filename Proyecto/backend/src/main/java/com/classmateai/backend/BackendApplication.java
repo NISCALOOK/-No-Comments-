@@ -16,14 +16,14 @@ public class BackendApplication {
     public class WebConfig implements WebMvcConfigurer {
         @Value("${frontend.url:http://localhost:3000}")
         private String frontendUrl;
-        
-        @Override
-        public void addCorsMappings(CorsRegistry registry) {
-            registry.addMapping("/**")
-                    .allowedOriginPatterns(frontendUrl, "http://localhost:3000") // CAMBIADO: allowedOriginPatterns
-                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                    .allowedHeaders("*")
-                    .allowCredentials(true);
-        }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOriginPatterns(frontendUrl, "http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
     }
 }
