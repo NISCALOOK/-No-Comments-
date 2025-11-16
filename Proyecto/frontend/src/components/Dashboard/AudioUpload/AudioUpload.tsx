@@ -1,11 +1,13 @@
+// src/components/Dashboard/AudioUpload/AudioUpload.tsx
 import React from 'react';
 
-interface AudioUploadButtonProps {
+interface AudioUploadProps {
   onFileSelect: (file: File) => void;
   isLoading: boolean;
 }
 
-export const AudioUploadButton: React.FC<AudioUploadButtonProps> = ({ onFileSelect, isLoading }) => {
+
+const AudioUpload: React.FC<AudioUploadProps> = ({ onFileSelect, isLoading }) => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       onFileSelect(event.target.files[0]);
@@ -24,10 +26,13 @@ export const AudioUploadButton: React.FC<AudioUploadButtonProps> = ({ onFileSele
         accept="audio/*" 
         onChange={handleFileChange} 
         disabled={isLoading} 
-        style={{ display: 'none' }} // Ocultamos el input feo y usamos el label como botón
+        style={{ display: 'none' }}
         data-testid="audio-upload-input" 
       />
       {isLoading && <p style={{ marginTop: '10px' }}>Subiendo...</p>}
     </div>
   );
 };
+
+
+export default AudioUpload;
