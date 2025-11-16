@@ -35,7 +35,7 @@ public class User implements UserDetails {
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // 🚨 CORRECCIÓN: Usar @ToString.Exclude en colecciones LAZY para evitar errores
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude 
     private Set<Transcription> transcriptions;

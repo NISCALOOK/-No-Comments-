@@ -11,7 +11,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Optional<Task> findByIdAndUser_Id(Long taskId, Long userId);
     List<Task> findByUser_Id(Long userId);
 
-    // --- ¡AÑADE ESTE MÉTODO! ---
     // "Encuentra todas las Task que tengan este transcription_id"
     List<Task> findByTranscription_Id(Long transcriptionId);
 }

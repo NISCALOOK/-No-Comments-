@@ -36,7 +36,6 @@ public class Task {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // --- ¡AÑADIDO! ---
     // Muchas tareas (opcionalmente) pertenecen a una transcripción.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transcription_id")
