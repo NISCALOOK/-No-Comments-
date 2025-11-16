@@ -1,6 +1,10 @@
 package com.classmateai.backend.auth;
 
 import com.classmateai.backend.entity.User;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +22,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
         return ResponseEntity.status(201).body(
                 java.util.Map.of("message", "Usuario registrado exitosamente")
@@ -26,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         User user = authService.login(request);
 
         String token = jwtUtil.generateToken(user);
@@ -45,14 +49,25 @@ public class AuthController {
 
     @Data
     static class RegisterRequest {
+        @NotBlank(message = "El nombre no puede estar vacío")
         private String name;
+
+        @NotBlank(message = "El email no puede estar vacío")
+        @Email(message = "Debe ser una dirección de email válida")
         private String email;
+
+        @NotBlank(message = "La contraseña no puede estar vacía")
+        @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
         private String password;
     }
 
     @Data
     static class LoginRequest {
+        @NotBlank(message = "El email es requerido")
+        @Email(message = "Formato de email inválido")
         private String email;
+
+        @NotBlank(message = "La contraseña es requerida")
         private String password;
     }
 }
