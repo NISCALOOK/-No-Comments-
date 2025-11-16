@@ -10,8 +10,6 @@ import com.classmateai.backend.entity.Transcription;
 import com.classmateai.backend.entity.User;
 import com.classmateai.backend.exception.ResourceNotFoundException;
 import com.classmateai.backend.repository.TranscriptionRepository;
-
-// --- ¡AÑADE ESTOS IMPORTS! ---
 import com.classmateai.backend.repository.QuestionAnswerRepository;
 import com.classmateai.backend.repository.TaskRepository;
 
@@ -32,7 +30,6 @@ public class TranscriptionService {
     @Autowired
     private TaskService taskService; // Lo usamos para mapear
 
-    // --- ¡AÑADE ESTOS REPOSITORIOS! ---
     @Autowired
     private TaskRepository taskRepository;
 
@@ -52,7 +49,6 @@ public class TranscriptionService {
         return transcriptions.stream().map(this::mapToSimpleResponse).collect(Collectors.toList());
     }
 
-    // --- ¡MÉTODO MODIFICADO! ---
     // GET /api/transcriptions/{id}
     @Transactional(readOnly = true)
     public TranscriptionDetailResponse getTranscriptionDetails(Long transcriptionId) {
@@ -62,7 +58,6 @@ public class TranscriptionService {
         Transcription transcription = transcriptionRepository.findByIdAndUser_Id(transcriptionId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transcripción no encontrada o no pertenece al usuario"));
 
-        // --- ¡ESTA ES LA CORRECCIÓN! ---
         // 2. Buscamos EXPLÍCITAMENTE las tareas y Q&A usando los repositorios
         List<Task> tasks = taskRepository.findByTranscription_Id(transcriptionId);
         List<QuestionAnswer> qas = questionAnswerRepository.findByTranscription_Id(transcriptionId);
@@ -70,7 +65,6 @@ public class TranscriptionService {
         // 3. Mapeamos todo junto
         return mapToDetailResponse(transcription, tasks, qas);
     }
-
 
 
     // --- Funciones Mágicas (Mapeadores) ---
@@ -85,7 +79,6 @@ public class TranscriptionService {
         return res;
     }
 
-    // --- ¡MÉTODO MODIFICADO! ---
     // Ahora acepta las listas que le pasamos
     private TranscriptionDetailResponse mapToDetailResponse(Transcription t, List<Task> tasks, List<QuestionAnswer> qas) {
         TranscriptionDetailResponse res = new TranscriptionDetailResponse();
