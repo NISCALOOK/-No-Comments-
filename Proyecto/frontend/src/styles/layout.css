@@ -1,0 +1,66 @@
+/* src/styles/layout.css */
+
+/* Importamos las variables para que estén disponibles */
+@import './globals.css';
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: var(--sidebar-width); /* 260px */
+  background-color: #1a1a1a;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1100;
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+  
+  /* En móvil, el sidebar está fuera de la vista por defecto */
+  transform: translateX(-100%);
+}
+
+/* --------------------------------------------------
+   ¡LA REGLA MÁGICA QUE NECESITAS!
+   Esta clase se añade con JavaScript (React)
+   y mueve el sidebar de vuelta a la vista.
+--------------------------------------------------- */
+.sidebar--open {
+  transform: translateX(0);
+}
+
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width); /* Espacio para el sidebar en escritorio */
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* --- RESPONSIVIDAD --- */
+
+/* Tablets */
+@media (max-width: 768px) {
+  .sidebar {
+    width: var(--sidebar-width-collapsed); /* 70px */
+  }
+
+  .main-content {
+    margin-left: var(--sidebar-width-collapsed);
+  }
+}
+
+/* Móviles */
+@media (max-width: 576px) {
+  .sidebar {
+    /* El ancho no es tan importante aquí, ya que está oculto por defecto */
+    transform: translateX(-100%);
+  }
+
+  /* El contenido principal ocupa todo el ancho en móvil */
+  .main-content {
+    margin-left: 0;
+  }
+}
