@@ -1,75 +1,129 @@
-/* Estilos para el Header */
+/* header.css */
+@import '../Dashboard.css'; 
+/* src/components/Header.css */
+
+
 .header {
-  background: #000000; /* Fondo negro absoluto */
-  padding: 20px 30px;
-  box-shadow: 0 2px 10px rgba(255, 0, 0, 0.2); /* Sombra roja sutil */
+  background-color: var(--color-background);
+  padding: var(--spacing-md) var(--spacing-lg);
+  box-shadow: 0 2px 4px var(--color-text-shadow);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  margin-left: 260px; /* Ajuste para que no se superponga con el sidebar */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* --- Nueva sección para la parte izquierda del header --- */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.header-title-group {
+  display: flex;
+  flex-direction: column;
 }
 
 .header h2 {
-  color: #FF0000; /* Rojo intenso */
+  color: var(--color-primary);
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  font-family: 'Montserrat', sans-serif; /* Fuente moderna */
-  letter-spacing: 1px;
+  line-height: 1.2; /* Ajuste para que el subtítulo se pegue bien */
+}
+
+/* --- Estilo para el nuevo subtítulo --- */
+.header .subtitle {
+  color: #b0b0b0; /* Un gris más suave para no competir con el título */
+  font-size: 0.875rem; /* 14px */
+  font-weight: 400;
+  margin: 0;
+  margin-top: -2px; /* Lo subimos un poco para que esté más cerca del h2 */
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--spacing-md);
 }
 
-.header-actions span {
-  color: #FFFFFF; /* Texto blanco */
+/* --- Estilo para el texto de bienvenida --- */
+.welcome-text {
+  color: var(--color-text-on-dark);
   font-weight: 500;
-  font-family: 'Montserrat', sans-serif;
 }
 
 .btn-logout {
-  background: #FF0000; /* Fondo rojo intenso */
-  color: #FFFFFF; /* Texto blanco */
+  background-color: var(--color-primary);
+  color: var(--color-text-on-dark);
   border: none;
-  padding: 10px 20px;
+  padding: var(--spacing-xs) var(--spacing-md);
   border-radius: 5px;
   font-weight: 600;
   cursor: pointer;
+  font-family: var(--font-family-base);
   transition: all 0.3s ease;
-  font-family: 'Montserrat', sans-serif;
 }
 
 .btn-logout:hover {
-  background: rgba(255, 0, 0, 0.8); /* Rojo más oscuro en hover */
+  background-color: var(--color-primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
 }
 
-/* Ajuste responsivo */
+/* --- Estilo para el botón de menú (hamburguesa) --- */
+.btn-menu {
+
+  background: none;
+  border: none;
+  color: var(--color-text-on-dark);
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.btn-menu:hover {
+  color: var(--color-primary);
+}
+
+
+/* --- RESPONSIVIDAD DEL HEADER --- */
+
+/* Tablets */
 @media (max-width: 768px) {
   .header {
-    margin-left: 70px; /* Coincide con el sidebar en móviles */
-    padding: 15px 20px;
+    padding: var(--spacing-sm) var(--spacing-md);
   }
   
   .header h2 {
-    font-size: 1.2rem; /* Reducir tamaño de fuente en móviles */
+    font-size: 1.2rem;
   }
   
-  .header-actions span {
-    font-size: 0.9rem; /* Reducir tamaño de fuente en móviles */
+  .header .subtitle {
+    font-size: 0.75rem; /* 12px */
   }
-  
-  .btn-logout {
-    padding: 8px 16px; /* Reducir padding en móviles */
-    font-size: 0.9rem; /* Reducir tamaño de fuente en móviles */
+}
+
+/* Móviles */
+@media (max-width: 576px) {
+  .header {
+    padding: var(--spacing-sm);
+  }
+
+  /* 1. Mostramos el botón de menú */
+  .btn-menu {
+    display: block;
+  }
+
+  /* 2. Ocultamos el texto de bienvenida para ahorrar espacio */
+  .welcome-text {
+    display: none;
   }
 }

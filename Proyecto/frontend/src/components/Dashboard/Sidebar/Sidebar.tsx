@@ -1,53 +1,59 @@
+// src/components/layout/Sidebar/Sidebar.tsx
 import { Link, useLocation } from 'react-router-dom';
+import { useMemo } from 'react'; // 1. Importamos useMemo
 import './Sidebar.css';
 
-const Sidebar = () => {
+// 3. Definimos la configuración de nuestros enlaces en un array.
+// Ahora es muy fácil añadir, quitar o modificar enlaces.
+const sidebarLinksConfig = [
+  { path: '/dashboard/home', label: 'Inicio' },
+  { path: '/dashboard/upload', label: 'Subir Audio' },
+  { path: '/dashboard/transcription', label: 'Transcripción' },
+  { path: '/dashboard/summary', label: 'Resumen' },
+  { path: '/dashboard/tasks', label: 'Tareas' },
+  { path: '/dashboard/calendar', label: 'Calendario' },
+  { path: '/dashboard/chat', label: 'Chat IA' },
+  { path: '/dashboard/export', label: 'Exportar' },
+];
+
+interface SidebarProps {
+  onClose: () => void;
+}
+
+const Sidebar = ({ onClose }: SidebarProps) => {
   const location = useLocation();
   
-  const isActive = (path: string) => {
-   
-    return location.pathname === path || location.pathname.startsWith(path + '/');
-  };
+  // 2. Usamos useMemo para calcular los enlaces solo cuando la ubicación cambie.
+  const linkElements = useMemo(() => {
+    return sidebarLinksConfig.map((link) => {
+      const isActive = location.pathname === link.path || location.pathname.startsWith(link.path + '/');
+      
+      return (
+        <li key={link.path} className={isActive ? 'active' : ''}>
+          <Link 
+            to={link.path} 
+            onClick={onClose} // 1. Cierra el sidebar al hacer clic
+            // 4. Añadimos accesibilidad semántica
+            aria-current={isActive ? 'page' : undefined}
+          >
+            {link.label}
+          </Link>
+        </li>
+      );
+    });
+  }, [location.pathname, onClose]); // Dependencias: solo se recalcula si la ruta o la función onClose cambian.
   
   return (
-    <div className="sidebar">
+    <div className="sidebar-content">
+      <button className="btn-close" onClick={onClose} aria-label="Cerrar menú">
+        &times;
+      </button>
       <h2>Menú</h2>
       <nav>
         <ul>
-          <li className={isActive('/dashboard/home') ? 'active' : ''}>
-            <Link to="/dashboard/home">Inicio</Link>
-          </li>
-          <li className={isActive('/dashboard/upload') ? 'active' : ''}>
-            <Link to="/dashboard/upload">Subir Audio</Link>
-          </li>
-          <li className={isActive('/dashboard/transcription') ? 'active' : ''}>
-            <Link to="/dashboard/transcription">Transcripción</Link>
-          </li>
-          <li className={isActive('/dashboard/summary') ? 'active' : ''}>
-            <Link to="/dashboard/summary">Resumen</Link>
-          </li>
-          <li className={isActive('/dashboard/tasks') ? 'active' : ''}>
-            <Link to="/dashboard/tasks">Tareas</Link>
-          </li>
-          
-          
-          
-          <li className={isActive('/dashboard/calendar') ? 'active' : ''}>
-           
-            <Link to="/dashboard/calendar">Calendario</Link>
-          </li>
-          
-          <li className={isActive('/dashboard/chat') ? 'active' : ''}>
-         
-            <Link to="/dashboard/chat">Chat IA</Link>
-          </li>
-          
-        
-          <li className={isActive('/dashboard/export') ? 'active' : ''}>
-            <Link to="/dashboard/export">Exportar</Link>
-          </li>
+          {/* 3. Renderizamos la lista de enlaces memorizada */}
+          {linkElements}
         </ul>
-        
       </nav>
     </div>
   );
