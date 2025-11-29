@@ -10,7 +10,7 @@ public class TranscriptionDetailResponse {
     private LocalDateTime createdAt;
     private String fullText;
     private String summary;
-    private List<QADto> questionsAndAnswers;
+    private List<String> tags;
     private List<TaskResponse> tasks;
     
     // Getters y Setters
@@ -26,8 +26,10 @@ public class TranscriptionDetailResponse {
     public void setFullText(String fullText) { this.fullText = fullText; }
     public String getSummary() { return summary; }
     public void setSummary(String summary) { this.summary = summary; }
-    public List<QADto> getQuestionsAndAnswers() { return questionsAndAnswers; }
-    public void setQuestionsAndAnswers(List<QADto> questionsAndAnswers) { this.questionsAndAnswers = questionsAndAnswers; }
+    
+    public List<String> getTags() { return tags; }
+    public void setTags(List<String> tags) { this.tags = tags; }
+    
     public List<TaskResponse> getTasks() { return tasks; }
     public void setTasks(List<TaskResponse> tasks) { this.tasks = tasks; }
 }

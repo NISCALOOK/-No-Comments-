@@ -50,8 +50,13 @@ public class ChatController {
                 }
             }
 
-            // Llamar al servicio LLM
-            String response = llmService.chatWithLLM(request.getMessage(), context);
+            // Llamar al servicio LLM con RAG
+            String response = llmService.chatWithLLM(
+                request.getMessage(), 
+                context, 
+                currentUser.getId(), 
+                request.getTranscriptionId()
+            );
 
             ChatResponse chatResponse = new ChatResponse();
             chatResponse.setMessage(response);

@@ -1,16 +1,13 @@
 package com.classmateai.backend.service;
 
-import com.classmateai.backend.dto.QADto;
 import com.classmateai.backend.dto.TaskResponse;
 import com.classmateai.backend.dto.TranscriptionDetailResponse;
 import com.classmateai.backend.dto.TranscriptionSimpleResponse;
-import com.classmateai.backend.entity.QuestionAnswer; // Importar la entidad
 import com.classmateai.backend.entity.Task; // Importar la entidad
 import com.classmateai.backend.entity.Transcription;
 import com.classmateai.backend.entity.User;
 import com.classmateai.backend.exception.ResourceNotFoundException;
 import com.classmateai.backend.repository.TranscriptionRepository;
-import com.classmateai.backend.repository.QuestionAnswerRepository;
 import com.classmateai.backend.repository.TaskRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +29,11 @@ public class TranscriptionService {
 
     @Autowired
     private TaskRepository taskRepository;
-
+    
     @Autowired
-    private QuestionAnswerRepository questionAnswerRepository;
+    private TagService tagService;
+
+    
 
 
     private Long getCurrentUserId() {
@@ -58,12 +57,11 @@ public class TranscriptionService {
         Transcription transcription = transcriptionRepository.findByIdAndUser_Id(transcriptionId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transcripción no encontrada o no pertenece al usuario"));
 
-        // 2. Buscamos EXPLÍCITAMENTE las tareas y Q&A usando los repositorios
+        // 2. Buscamos EXPLÍCITAMENTE las tareas usando los repositorios
         List<Task> tasks = taskRepository.findByTranscription_Id(transcriptionId);
-        List<QuestionAnswer> qas = questionAnswerRepository.findByTranscription_Id(transcriptionId);
 
         // 3. Mapeamos todo junto
-        return mapToDetailResponse(transcription, tasks, qas);
+        return mapToDetailResponse(transcription, tasks);
     }
 
 
@@ -80,7 +78,7 @@ public class TranscriptionService {
     }
 
     // Ahora acepta las listas que le pasamos
-    private TranscriptionDetailResponse mapToDetailResponse(Transcription t, List<Task> tasks, List<QuestionAnswer> qas) {
+    private TranscriptionDetailResponse mapToDetailResponse(Transcription t, List<Task> tasks) {
         TranscriptionDetailResponse res = new TranscriptionDetailResponse();
         res.setId(t.getId());
         res.setTitle(t.getTitle());
@@ -94,21 +92,11 @@ public class TranscriptionService {
                 .map(taskService::mapToTaskResponse)
                 .collect(Collectors.toList());
         res.setTasks(taskDtos);
-
-        // Mapea las Q&A (List<QuestionAnswer> -> List<QADto>)
-        List<QADto> qaDtos = qas.stream()
-                .map(this::mapToQADto)
-                .collect(Collectors.toList());
-        res.setQuestionsAndAnswers(qaDtos);
+        
+        // Obtener las etiquetas de la transcripción
+        List<String> tags = tagService.getTagsForTranscription(t.getId());
+        res.setTags(tags);
 
         return res;
-    }
-    
-    // Función helper para mapear la entidad Q&A (Esta ya la tenías)
-    private QADto mapToQADto(QuestionAnswer qa) {
-        QADto dto = new QADto();
-        dto.setQuestion(qa.getQuestion());
-        dto.setAnswer(qa.getAnswer());
-        return dto;
     }
 }

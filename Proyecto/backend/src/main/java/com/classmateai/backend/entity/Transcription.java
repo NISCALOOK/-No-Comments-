@@ -49,10 +49,7 @@ public class Transcription {
     @ToString.Exclude
     private Set<Task> tasks;
     
-    // --- ¡AÑADIDO! (Relación inversa para Q&A) ---
-    @OneToMany(mappedBy = "transcription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private Set<QuestionAnswer> questionsAndAnswers;
+    
 
     // --- ¡AÑADIDO! (Relación con Etiquetas) ---
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)

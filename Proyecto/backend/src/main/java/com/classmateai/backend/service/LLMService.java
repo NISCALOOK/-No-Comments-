@@ -1,15 +1,26 @@
 package com.classmateai.backend.service;
 
+import com.classmateai.backend.entity.DocumentChunk;
+import com.classmateai.backend.entity.Task;
+import com.classmateai.backend.entity.TaskPriority;
+import com.classmateai.backend.entity.User;
+import com.classmateai.backend.entity.Transcription;
+import com.classmateai.backend.repository.DocumentChunkRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class LLMService {
@@ -22,6 +33,12 @@ public class LLMService {
 
     @Value("${llm.api.key}")
     private String llmApiKey;
+
+    @Autowired
+    private DocumentChunkRepository documentChunkRepository;
+
+    @Autowired
+    private EmbeddingService embeddingService;
 
     public LLMService(WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
         this.webClient = webClientBuilder.build();
@@ -37,7 +54,7 @@ public class LLMService {
                 Map.of("role", "user", "content", prompt)
             ),
             "temperature", 0.3,
-            "max_tokens", 1000
+            "max_tokens", 10000
         );
 
         try {
@@ -66,7 +83,7 @@ public class LLMService {
                 Map.of("role", "user", "content", prompt)
             ),
             "temperature", 0.2,
-            "max_tokens", 200
+            "max_tokens", 5000
         );
 
         try {
@@ -86,20 +103,45 @@ public class LLMService {
         }
     }
 
-    public String chatWithLLM(String message, String context) {
-        String prompt = buildChatPrompt(message, context);
-        
-        Map<String, Object> request = Map.of(
-            "model", "minimax-m2-free",
-            "messages", List.of(
-                Map.of("role", "system", "content", "Eres un asistente académico especializado en ayudar a estudiantes con sus clases y apuntes."),
-                Map.of("role", "user", "content", prompt)
-            ),
-            "temperature", 0.5,
-            "max_tokens", 800
-        );
-
+    public String chatWithLLM(String message, String context, Long userId, Long transcriptionId) {
         try {
+            // Intentar usar RAG, pero si falla, usar el contexto tradicional
+            String ragContext = "";
+            try {
+                // Generar embedding para la pregunta del usuario
+                float[] queryEmbedding = embeddingService.generateQueryEmbedding(message);
+                
+                if (transcriptionId != null) {
+                    // Buscar chunks específicos de esta transcripción
+                    List<DocumentChunk> relevantChunks = documentChunkRepository
+                        .findNearestChunksByTranscription(transcriptionId, queryEmbedding, 5);
+                    ragContext = buildRAGContext(relevantChunks);
+                } else {
+                    // Buscar chunks de todas las transcripciones del usuario
+                    List<DocumentChunk> relevantChunks = documentChunkRepository
+                        .findNearestChunksByUser(userId, queryEmbedding, 5);
+                    ragContext = buildRAGContext(relevantChunks);
+                }
+            } catch (Exception ragError) {
+                // Si falla RAG, continuar sin contexto RAG
+                ragContext = "";
+            }
+            
+            // Combinar contexto proporcionado con contexto RAG
+            String fullContext = combineContexts(context, ragContext);
+            
+            String prompt = buildChatPrompt(message, fullContext);
+            
+            Map<String, Object> request = Map.of(
+                "model", "minimax-m2-free",
+                "messages", List.of(
+                    Map.of("role", "system", "content", "Eres un asistente académico especializado en ayudar a estudiantes con sus clases y apuntes. Usa el contexto proporcionado para dar respuestas precisas y relevantes."),
+                    Map.of("role", "user", "content", prompt)
+                ),
+                "temperature", 0.5,
+                "max_tokens", 10000
+            );
+
             String response = webClient.post()
                 .uri(llmApiUrl + "/chat/completions")
                 .header("Authorization", "Bearer " + llmApiKey)
@@ -112,21 +154,47 @@ public class LLMService {
             return parseChatResponse(response);
             
         } catch (Exception e) {
-            throw new RuntimeException("Error en el chat con LLM: " + e.getMessage(), e);
+            // En caso de error, devolver una respuesta simple
+            return "Lo siento, tuve un problema al procesar tu pregunta. Por favor, intenta nuevamente. Error: " + e.getMessage();
         }
+    }
+
+    private String buildRAGContext(List<DocumentChunk> chunks) {
+        if (chunks.isEmpty()) {
+            return "";
+        }
+        
+        return chunks.stream()
+            .map(chunk -> chunk.getContent())
+            .collect(Collectors.joining("\n\n---\n\n"));
+    }
+
+    private String combineContexts(String originalContext, String ragContext) {
+        if (ragContext.isEmpty()) {
+            return originalContext;
+        }
+        
+        if (originalContext == null || originalContext.isEmpty()) {
+            return "Contexto relevante de tus apuntes:\n\n" + ragContext;
+        }
+        
+        return originalContext + "\n\nContexto adicional relevante de tus apuntes:\n\n" + ragContext;
     }
 
     private String buildSummaryPrompt(String fullText) {
         return String.format("""
-            Analiza el siguiente texto de una clase transcrita y genera:
+            Analiza el siguiente texto de una clase transcrita y genera un título y resumen REALES basados en el contenido.
             
-            1. Un título conciso y descriptivo (máximo 60 caracteres)
-            2. Un resumen estructurado con los puntos clave
+            INSTRUCCIONES IMPORTANTES:
+            - NO uses placeholders como "título aquí" o "resumen aquí"
+            - Genera contenido ORIGINAL basado en el texto proporcionado
+            - El título debe ser específico al contenido (máximo 60 caracteres)
+            - El resumen debe extraer los puntos principales del texto
             
-            Responde en formato JSON:
+            Responde ÚNICAMENTE en formato JSON con contenido real:
             {
-              "title": "título aquí",
-              "summary": "resumen aquí"
+              "title": "título real basado en el contenido",
+              "summary": "resumen real basado en el contenido"
             }
             
             Texto a analizar:
@@ -135,16 +203,27 @@ public class LLMService {
     }
 
     private String buildTagsPrompt(String fullText, String summary) {
+        String contentToAnalyze;
+
+        if (summary != null && !summary.isBlank()) {
+            contentToAnalyze = summary;
+        } else {
+            contentToAnalyze = fullText;
+        }
+
         return String.format("""
-            Basado en el siguiente texto y resumen de una clase, genera 5-7 etiquetas relevantes que describan el contenido.
-            Las etiquetas deben ser conceptos clave, temas importantes o palabras descriptivas.
-            
-            Responde solo con las etiquetas separadas por comas, sin formato JSON.
-            
+            Tu tarea es generar 5 etiquetas conceptuales que abarquen el contenido que se te da.
+
             Texto: %s
-            
-            Resumen: %s
-            """, fullText.substring(0, Math.min(1000, fullText.length())), summary);
+
+            INSTRUCCIONES OBLIGATORIAS:
+            1. NO escribas introducciones ni pensamientos.
+            2. Tu respuesta FINAL debe empezar OBLIGATORIAMENTE con la palabra clave: "###LISTA###".
+            3. Inmediatamente después, pon las etiquetas separadas por "||".
+
+            Ejemplo EXACTO de respuesta requerida:
+            ###LISTA###Matemáticas || Examen || Universidad || Cálculo || Martes
+            """, contentToAnalyze);
     }
 
     private String buildChatPrompt(String message, String context) {
@@ -165,16 +244,50 @@ public class LLMService {
                 JsonNode message = choices.get(0).get("message");
                 if (message != null) {
                     String content = message.get("content").asText();
+
+                    // --- CORRECCIÓN APLICADA AQUÍ ---
+                    // Reemplazamos el regex por la búsqueda directa del cierre </think>
+                    int endOfThink = content.lastIndexOf("</think>");
+                    if (endOfThink != -1) {
+                        // Cortamos todo lo que está antes del cierre del pensamiento
+                        content = content.substring(endOfThink + 8);
+                    }
+                    content = content.trim();
+                    // --------------------------------
+
                     // Intentar parsear como JSON para obtener title y summary
                     try {
+                        // A veces el modelo devuelve el JSON envuelto en bloques de código markdown (```json ... ```)
+                        // Limpiamos eso por si acaso
+                        if (content.startsWith("```")) {
+                            content = content.replace("```json", "").replace("```", "").trim();
+                        }
+
                         JsonNode jsonContent = objectMapper.readTree(content);
                         String title = jsonContent.get("title").asText();
                         String summary = jsonContent.get("summary").asText();
-                        return String.format("{\"title\":\"%s\",\"summary\":\"%s\"}", 
+
+                        // Verificar que no sean placeholders
+                        if (title.contains("aquí") || title.contains("titulo") || title.length() < 5) {
+                            title = "Transcripción generada";
+                        }
+                        if (summary.contains("aquí") || summary.contains("resumen") || summary.length() < 10) {
+                            summary = "Resumen generado automáticamente del contenido de la clase.";
+                        }
+
+                        return String.format("{\"title\":\"%s\",\"summary\":\"%s\"}",
                             title.replace("\"", "\\\""), summary.replace("\"", "\\\""));
                     } catch (Exception e) {
-                        // Si no es JSON, devolver el contenido como está
-                        return content;
+                        // Si no es JSON, generar título y resumen básicos
+                        // (Mantenemos tu lógica de fallback original)
+                        if (content.length() > 60) {
+                            String title = content.substring(0, 60).replaceAll("[^\\w\\sáéíóúÁÉÍÓÚñÑ-]", "").trim() + "...";
+                            String summary = content.replaceAll("[^\\w\\sáéíóúÁÉÍÓÚñÑ.(),-]", "").trim();
+                            return String.format("{\"title\":\"%s\",\"summary\":\"%s\"}",
+                                title.replace("\"", "\\\""), summary.replace("\"", "\\\""));
+                        }
+                        return String.format("{\"title\":\"Transcripción procesada\",\"summary\":\"%s\"}",
+                            content.replace("\"", "\\\""));
                     }
                 }
             }
@@ -183,7 +296,6 @@ public class LLMService {
             throw new RuntimeException("Error al parsear respuesta del LLM: " + e.getMessage(), e);
         }
     }
-
     private List<String> parseTagsResponse(String response) {
         try {
             JsonNode root = objectMapper.readTree(response);
@@ -192,23 +304,66 @@ public class LLMService {
                 JsonNode message = choices.get(0).get("message");
                 if (message != null) {
                     String content = message.get("content").asText();
-                    // Parsear etiquetas separadas por comas
+
+                    // 1. LIMPIEZA DE PENSAMIENTOS (<think>...</think>)
+                    int endOfThink = content.lastIndexOf("</think>");
+                    if (endOfThink != -1) {
+                        content = content.substring(endOfThink + 8);
+                    }
+
+                    // 2. LIMPIEZA DE BASURA COMÚN
+                    content = content.replace("###LISTA###", "")
+                                     .replace("```json", "")
+                                     .replace("```", "")
+                                     .trim();
+
+                    // 3. SPLIT UNIVERSAL (La clave del éxito)
+                    // Divide por: Saltos de línea (\n), Comas (,) o Barras (|)
+                    // El símbolo '+' significa "uno o más", así que si hay ", \n" lo toma como un solo separador.
+                    String[] rawTags = content.split("[,|\\n]+");
+
                     List<String> tags = new ArrayList<>();
-                    String[] tagArray = content.split(",");
-                    for (String tag : tagArray) {
-                        String cleanTag = tag.trim().replaceAll("[^\\w\\sáéíóúÁÉÍÓÚñÑ-]", "");
-                        if (!cleanTag.isEmpty()) {
+                    for (String rawTag : rawTags) {
+                        // Limpieza individual de cada etiqueta
+                        String cleanTag = rawTag.trim()
+                                                .replaceAll("^[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]+", "") // Borra "1.", "-", "*" al inicio
+                                                .replaceAll("[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\\s-]", ""); // Borra emojis o símbolos raros
+
+                        // Filtros de calidad
+                        if (cleanTag.length() > 2 &&
+                            !cleanTag.equalsIgnoreCase("tags") &&
+                            cleanTag.length() < 30) {
+
                             tags.add(cleanTag);
                         }
                     }
-                    return tags;
+
+                    // Devolver máximo 6 etiquetas únicas
+                    return tags.stream().distinct().limit(6).collect(Collectors.toList());
                 }
             }
-            throw new RuntimeException("Respuesta inválida del LLM para etiquetas");
+            return new ArrayList<>();
         } catch (Exception e) {
-            throw new RuntimeException("Error al parsear etiquetas del LLM: " + e.getMessage(), e);
+            // En caso de error devolvemos lista vacía para no romper el flujo
+            return new ArrayList<>();
         }
     }
+
+    // Método auxiliar de respaldo (puedes añadirlo a tu clase)
+    private List<String> parseTagsFromCSV(String content) {
+        List<String> tags = new ArrayList<>();
+        // Eliminar corchetes json si quedaron
+        content = content.replace("{", "").replace("}", "").replace("\"tags\":", "").replace("[", "").replace("]", "");
+        String[] tagArray = content.split(",");
+        for (String tag : tagArray) {
+            String cleanTag = tag.trim().replaceAll("[^\\w\\sáéíóúÁÉÍÓÚñÑ-]", "");
+            if (!cleanTag.isEmpty() && cleanTag.length() > 1 && !cleanTag.startsWith("think")) {
+                tags.add(cleanTag);
+            }
+        }
+        return tags;
+    }
+
 
     private String parseChatResponse(String response) {
         try {
@@ -224,5 +379,260 @@ public class LLMService {
         } catch (Exception e) {
             throw new RuntimeException("Error al parsear respuesta del chat: " + e.getMessage(), e);
         }
+    }
+
+    public List<Task> extractTasksFromTranscription(String transcriptionText, String summary, Long userId, Long transcriptionId) {
+        try {
+            String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String currentDayOfWeek = LocalDate.now().getDayOfWeek().toString().toLowerCase();
+            
+            String prompt = String.format("""
+                Analiza el siguiente texto de una clase transcrita y extrae todas las tareas, parciales, recordatorios o actividades mencionadas.
+                
+                Fecha actual: %s (%s)
+                
+                Instrucciones:
+                1. Busca menciones de tareas, trabajos, parciales, recordatorios, fechas de entrega, etc.
+                2. Para cada tarea encontrada, determina:
+                   - Descripción clara y concisa
+                   - Prioridad (alta/media/baja) según urgencia e importancia
+                   - Fecha de entrega si se menciona (ej: "para el martes", "para el viernes", "para la próxima semana")
+                   - Hora si se menciona (ej: "a las 7 pm", "a las 6 pm", "a las 10 am")
+                   - Si no hay fecha específica, no asignes fecha
+                   - Si no hay hora específica, no asignes hora (usa null)
+                3. Responde SOLO en formato JSON con este exacto formato:
+                   {
+                     "tasks": [
+                       {
+                         "description": "descripción de la tarea",
+                         "priority": "alta|media|baja", 
+                         "due_date": "YYYY-MM-DD" o null,
+                         "due_time": "HH:MM" o null (formato 24h, ej: "19:00" para 7pm, "18:00" para 6pm)
+                       }
+                     ]
+                   }
+                4. Si no hay tareas mencionadas, responde con {"tasks": []}
+                
+                Texto a analizar:
+                %s
+                
+                Resumen:
+                %s
+                """, currentDate, currentDayOfWeek, transcriptionText, summary);
+            
+            Map<String, Object> request = Map.of(
+                "model", "minimax-m2-free",
+                "messages", List.of(
+                    Map.of("role", "system", "content", "Eres un asistente académico experto en identificar tareas y fechas de entrega en transcripciones de clases."),
+                    Map.of("role", "user", "content", prompt)
+                ),
+                "temperature", 0.2,
+                "max_tokens", 5000
+            );
+
+            String response = webClient.post()
+                .uri(llmApiUrl + "/chat/completions")
+                .header("Authorization", "Bearer " + llmApiKey)
+                .header("Content-Type", "application/json")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+            return parseTasksResponse(response, userId, transcriptionId);
+            
+        } catch (Exception e) {
+            // Si hay error, devolver lista vacía
+            return new ArrayList<>();
+        }
+    }
+
+    private List<Task> parseTasksResponse(String response, Long userId, Long transcriptionId) {
+        try {
+            JsonNode root = objectMapper.readTree(response);
+            JsonNode choices = root.get("choices");
+            if (choices != null && choices.isArray() && choices.size() > 0) {
+                JsonNode message = choices.get(0).get("message");
+                if (message != null) {
+                    String content = message.get("content").asText();
+                    
+                    // Limpiar si viene con formato HTML
+                    String cleanContent = content.trim();
+                    if (cleanContent.startsWith("<")) {
+                        int jsonStart = cleanContent.indexOf("{");
+                        int jsonEnd = cleanContent.lastIndexOf("}");
+                        if (jsonStart != -1 && jsonEnd != -1 && jsonEnd > jsonStart) {
+                            cleanContent = cleanContent.substring(jsonStart, jsonEnd + 1);
+                        }
+                    }
+                    
+                    Map<String, Object> tasksData = objectMapper.readValue(cleanContent, Map.class);
+                    List<Map<String, Object>> tasksList = (List<Map<String, Object>>) tasksData.get("tasks");
+                    
+                    List<Task> tasks = new ArrayList<>();
+                    LocalDate today = LocalDate.now();
+                    
+                    for (Map<String, Object> taskData : tasksList) {
+                        Task task = new Task();
+                        task.setDescription((String) taskData.get("description"));
+                        
+                        // Crear User y establecer ID
+                        User user = new User();
+                        user.setId(userId);
+                        task.setUser(user);
+                        
+                        // Set priority
+                        String priorityStr = (String) taskData.get("priority");
+                        if (priorityStr != null) {
+                            task.setPriority(TaskPriority.valueOf(priorityStr.toLowerCase()));
+                        } else {
+                            task.setPriority(TaskPriority.media);
+                        }
+                        
+                        // Set due date and time
+                        String dueDateStr = (String) taskData.get("due_date");
+                        String dueTimeStr = (String) taskData.get("due_time");
+                        
+                        if (dueDateStr != null && !dueDateStr.equals("null")) {
+                            try {
+                                String timeStr = "00:00:00"; // Default time
+                                if (dueTimeStr != null && !dueTimeStr.equals("null")) {
+                                    timeStr = dueTimeStr + ":00"; // Add seconds
+                                }
+                                task.setDueDate(LocalDateTime.parse(dueDateStr + "T" + timeStr));
+                            } catch (Exception e) {
+                                // Si hay error parseando fecha, intenta con fechas relativas
+                                LocalDateTime relativeDate = calculateRelativeDueDate(dueDateStr);
+                                if (relativeDate != null && dueTimeStr != null && !dueTimeStr.equals("null")) {
+                                    // Combine relative date with specified time
+                                    String[] timeParts = dueTimeStr.split(":");
+                                    int hour = Integer.parseInt(timeParts[0]);
+                                    int minute = timeParts.length > 1 ? Integer.parseInt(timeParts[1]) : 0;
+                                    task.setDueDate(relativeDate.withHour(hour).withMinute(minute).withSecond(0));
+                                } else {
+                                    task.setDueDate(relativeDate);
+                                }
+                            }
+                        }
+                        
+                        // Crear Transcription y establecer ID
+                        Transcription transcription = new Transcription();
+                        transcription.setId(transcriptionId);
+                        task.setTranscription(transcription);
+                        task.setCompleted(false);
+                        
+                        tasks.add(task);
+                    }
+                    
+                    return tasks;
+                }
+            }
+            return new ArrayList<>();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    private LocalDateTime calculateRelativeDueDate(String dueDateStr) {
+        LocalDate today = LocalDate.now();
+        String lowerDate = dueDateStr.toLowerCase();
+        
+        try {
+            if (lowerDate.contains("mañana")) {
+                return today.plusDays(1).atStartOfDay();
+            } else if (lowerDate.contains("pasado mañana")) {
+                return today.plusDays(2).atStartOfDay();
+            } else if (lowerDate.contains("lunes")) {
+                return getNextDayOfWeek(today, "monday").atStartOfDay();
+            } else if (lowerDate.contains("martes")) {
+                return getNextDayOfWeek(today, "tuesday").atStartOfDay();
+            } else if (lowerDate.contains("miércoles") || lowerDate.contains("miercoles")) {
+                return getNextDayOfWeek(today, "wednesday").atStartOfDay();
+            } else if (lowerDate.contains("jueves")) {
+                return getNextDayOfWeek(today, "thursday").atStartOfDay();
+            } else if (lowerDate.contains("viernes")) {
+                return getNextDayOfWeek(today, "friday").atStartOfDay();
+            } else if (lowerDate.contains("sábado")) {
+                return getNextDayOfWeek(today, "saturday").atStartOfDay();
+            } else if (lowerDate.contains("domingo")) {
+                return getNextDayOfWeek(today, "sunday").atStartOfDay();
+            } else if (lowerDate.contains("próxima semana")) {
+                return today.plusWeeks(1).atStartOfDay();
+            }
+        } catch (Exception e) {
+            // Ignorar errores
+        }
+        
+        return null;
+    }
+
+    private Integer extractTimeFromText(String text) {
+        String lowerText = text.toLowerCase();
+        
+        // Buscar patrones como "a las X pm/am", "a las X", "X pm/am", etc.
+        try {
+            // Patrón para "a las X pm/am"
+            if (lowerText.contains("a las")) {
+                String[] parts = lowerText.split("a las")[1].trim().split("\\s+");
+                if (parts.length >= 2) {
+                    int hour = Integer.parseInt(parts[0]);
+                    String period = parts[1];
+                    
+                    if (period.contains("pm") && hour != 12) {
+                        hour += 12;
+                    } else if (period.contains("am") && hour == 12) {
+                        hour = 0;
+                    }
+                    return hour;
+                }
+            }
+            
+            // Patrón para "X pm/am" sin "a las"
+            String[] timePatterns = {
+                "(\\d+)\\s*pm", "(\\d+)\\s*am",
+                "(\\d+)\\s*de la tarde", "(\\d+)\\s*de la mañana",
+                "(\\d+)\\s*de la noche"
+            };
+            
+            for (String pattern : timePatterns) {
+                if (lowerText.matches(".*" + pattern + ".*")) {
+                    java.util.regex.Pattern p = java.util.regex.Pattern.compile(pattern);
+                    java.util.regex.Matcher m = p.matcher(lowerText);
+                    if (m.find()) {
+                        int hour = Integer.parseInt(m.group(1));
+                        
+                        if (pattern.contains("pm") || pattern.contains("tarde") || pattern.contains("noche")) {
+                            if (hour != 12) hour += 12;
+                        } else if (pattern.contains("am") || pattern.contains("mañana")) {
+                            if (hour == 12) hour = 0;
+                        }
+                        return hour;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Ignorar errores de parseo
+        }
+        
+        return null;
+    }
+
+    private LocalDate getNextDayOfWeek(LocalDate date, String dayName) {
+        int targetDay = switch (dayName.toLowerCase()) {
+            case "monday" -> 1;
+            case "tuesday" -> 2;
+            case "wednesday" -> 3;
+            case "thursday" -> 4;
+            case "friday" -> 5;
+            case "saturday" -> 6;
+            case "sunday" -> 7;
+            default -> 1;
+        };
+        
+        int currentDay = date.getDayOfWeek().getValue();
+        int daysToAdd = (targetDay - currentDay + 7) % 7;
+        if (daysToAdd == 0) daysToAdd = 7; // Si es el mismo día, ir a la siguiente semana
+        
+        return date.plusDays(daysToAdd);
     }
 }
