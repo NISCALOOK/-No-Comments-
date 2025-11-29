@@ -1,26 +1,24 @@
-# --- PLANTILLA DE CONFIGURACIÓN DE CLASSMATE AI ---
-#
-# Instrucciones:
-# 1. Renombra este archivo a "application.properties"
-# 2. Rellena los valores de las contraseñas y API keys.
-#
-
 spring.application.name=backend
-# Puerto del servidor
 server.port=8080
 
-# Conexión a la Base de Datos (del docker-compose.yml)
-spring.datasource.url=jdbc:postgresql://localhost:5432/classmate_ai_db
-spring.datasource.username=classmate_user
-spring.datasource.password=
+# Aumentar límite de subida de archivos (50MB)
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/classmate_db_ai
+spring.datasource.username=prueba
+spring.datasource.password=prueba
+spring.datasource.driver-class-name=org.postgresql.Driver
 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 
-# Almacenamiento local
 storage.upload-dir=./classmate-uploads
 
-# URLs y Keys de APIs Externas
-whisper.api.key=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
-llm.api.url=https://hubs02225.snia.ch/v1
-llm.api.key=sk-gQr3jpBpdG684nG4T91ZLeTQGLkLoYRsjSHMxnJBqJdw05qf
+whisper.api.key=
+llm.api.url=
+llm.api.key=
+embeddings.api.url=
+embeddings.api.key=

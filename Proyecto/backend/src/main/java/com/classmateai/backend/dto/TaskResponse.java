@@ -10,7 +10,6 @@ public class TaskResponse {
     private LocalDateTime dueDate;
     private boolean isCompleted;
     
-    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getDescription() { return description; }

@@ -37,7 +37,6 @@ public class WhisperService {
                 wavFilePath = convertToWav(tempFilePath);
             }
 
-            // Construir comando para Whisper - usar rutas relativas al proyecto
             String projectRoot = System.getProperty("user.dir").replace("/Proyecto/backend", "");
             String venvPath = projectRoot + "/venv/bin/activate";
             String pythonClientsPath = projectRoot + "/python-clients/scripts/asr/transcribe_file_offline.py";
@@ -78,16 +77,13 @@ public class WhisperService {
                 throw new RuntimeException("Error en la transcripción: " + output.toString());
             }
 
-            // Extraer texto transcrito del output
             return extractTranscriptionText(output.toString());
 
         } finally {
-            // Limpiar archivo WAV convertido si es diferente
             if (!wavFilePath.equals(tempFilePath)) {
                 try {
                     Files.deleteIfExists(wavFilePath);
                 } catch (IOException e) {
-                    // Log error but don't fail the transcription
                     System.err.println("Error al eliminar archivo WAV temporal: " + e.getMessage());
                 }
             }
@@ -99,7 +95,6 @@ public class WhisperService {
         String wavFileName = inputFileName.substring(0, inputFileName.lastIndexOf('.')) + ".wav";
         Path wavFilePath = inputFilePath.getParent().resolve(wavFileName);
 
-        // Usar ffmpeg para convertir a WAV
         ProcessBuilder pb = new ProcessBuilder(
             "ffmpeg", "-i", inputFilePath.toString(),
             "-ar", "16000", // Sample rate 16kHz
@@ -111,7 +106,6 @@ public class WhisperService {
         pb.redirectErrorStream(true);
         Process process = pb.start();
 
-        // Leer salida para debugging
         StringBuilder output = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream()))) {
@@ -138,13 +132,10 @@ public class WhisperService {
 
     private String extractTranscriptionText(String output) {
         try {
-            // El output de Whisper viene en formato JSON
-            // Buscar el JSON completo en el output
             int jsonStart = output.indexOf("{");
             int jsonEnd = output.lastIndexOf("}");
             
             if (jsonStart == -1 || jsonEnd == -1 || jsonEnd <= jsonStart) {
-                // Si no se encuentra JSON, intentar extraer "Final transcript:"
                 String finalTranscriptMarker = "Final transcript: ";
                 int finalIndex = output.lastIndexOf(finalTranscriptMarker);
                 if (finalIndex != -1) {
@@ -155,7 +146,6 @@ public class WhisperService {
             
             String jsonStr = output.substring(jsonStart, jsonEnd + 1);
             
-            // Parsear el JSON para extraer las transcripciones
             ObjectMapper mapper = new ObjectMapper();
             Map<String, Object> response = mapper.readValue(jsonStr, Map.class);
             
@@ -178,7 +168,6 @@ public class WhisperService {
                 }
             }
             
-            // Si no se pudo extraer del JSON, buscar "Final transcript:"
             if (transcription.length() == 0) {
                 String finalTranscriptMarker = "Final transcript: ";
                 int finalIndex = output.lastIndexOf(finalTranscriptMarker);
@@ -190,7 +179,6 @@ public class WhisperService {
             return transcription.toString().trim();
             
         } catch (Exception e) {
-            // Si hay error parsingando JSON, intentar extraer "Final transcript:"
             String finalTranscriptMarker = "Final transcript: ";
             int finalIndex = output.lastIndexOf(finalTranscriptMarker);
             if (finalIndex != -1) {

@@ -26,7 +26,6 @@ public class EmbeddingService {
 
     public float[] generateEmbedding(String text, String inputType) {
         try {
-            // Construir el request body
             String requestBody = String.format("""
                 {
                     "input": ["%s"],
@@ -37,14 +36,12 @@ public class EmbeddingService {
                 }
                 """, escapeJson(text), MODEL, inputType);
 
-            // Configurar headers
             org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
             headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
             headers.setBearerAuth(embeddingsApiKey);
 
             org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(requestBody, headers);
 
-            // Hacer la llamada a la API
             org.springframework.http.ResponseEntity<String> response = restTemplate.postForEntity(
                 embeddingsApiUrl, entity, String.class);
 
@@ -52,7 +49,6 @@ public class EmbeddingService {
                 throw new RuntimeException("Error en llamada a API de embeddings: " + response.getStatusCode());
             }
 
-            // Parsear la respuesta
             JsonNode rootNode = objectMapper.readTree(response.getBody());
             JsonNode dataNode = rootNode.path("data");
             
@@ -85,14 +81,12 @@ public class EmbeddingService {
     public List<float[]> generateBatchEmbeddings(List<String> texts, String inputType) {
         List<float[]> embeddings = new ArrayList<>();
         
-        // Procesar en lotes para evitar límites de la API
         int batchSize = 10;
         for (int i = 0; i < texts.size(); i += batchSize) {
             int end = Math.min(i + batchSize, texts.size());
             List<String> batch = texts.subList(i, end);
             
             try {
-                // Construir request para batch
                 StringBuilder jsonInputs = new StringBuilder();
                 for (int j = 0; j < batch.size(); j++) {
                     if (j > 0) jsonInputs.append(", ");
@@ -109,14 +103,12 @@ public class EmbeddingService {
                     }
                     """, jsonInputs.toString(), MODEL, inputType);
 
-                // Configurar headers
                 org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
                 headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
                 headers.setBearerAuth(embeddingsApiKey);
 
                 org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(requestBody, headers);
 
-                // Hacer la llamada a la API
                 org.springframework.http.ResponseEntity<String> response = restTemplate.postForEntity(
                     embeddingsApiUrl, entity, String.class);
 
@@ -124,7 +116,6 @@ public class EmbeddingService {
                     throw new RuntimeException("Error en llamada batch a API de embeddings: " + response.getStatusCode());
                 }
 
-                // Parsear la respuesta
                 JsonNode rootNode = objectMapper.readTree(response.getBody());
                 JsonNode dataNode = rootNode.path("data");
                 
@@ -142,7 +133,6 @@ public class EmbeddingService {
                 }
 
             } catch (Exception e) {
-                // Si falla el batch, procesar individualmente
                 for (String text : batch) {
                     embeddings.add(generateEmbedding(text, inputType));
                 }

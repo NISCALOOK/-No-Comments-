@@ -23,7 +23,6 @@ public class DocumentChunk {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
-    // Constructors
     public DocumentChunk() {
         this.createdAt = LocalDateTime.now();
     }
@@ -35,7 +34,6 @@ public class DocumentChunk {
         this.createdAt = LocalDateTime.now();
     }
     
-    // Getters and Setters
     public Long getId() {
         return id;
     }

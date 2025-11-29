@@ -35,8 +35,6 @@ public class TranscriptionTag implements Serializable {
             this.transcriptionId = transcriptionId;
             this.tagId = tagId;
         }
-
-        // Getters and setters
         public Long getTranscriptionId() { return transcriptionId; }
         public void setTranscriptionId(Long transcriptionId) { this.transcriptionId = transcriptionId; }
         public Long getTagId() { return tagId; }

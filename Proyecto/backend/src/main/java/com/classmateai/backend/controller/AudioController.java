@@ -33,7 +33,6 @@ public class AudioController {
     @PostMapping("/upload")
     public ResponseEntity<TranscriptionSimpleResponse> uploadAudio(@RequestParam("file") MultipartFile file) {
         try {
-            // Validar archivo
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }

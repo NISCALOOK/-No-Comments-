@@ -27,7 +27,7 @@ public class TagService {
         }
 
         for (String tagName : tagNames) {
-            // Limitar longitud del tag a 100 caracteres
+            //tag a 100 caracteres
             String limitedTagName = tagName.length() > 100 ? tagName.substring(0, 100) : tagName.toLowerCase();
             
             Tag tag = tagRepository.findByName(limitedTagName).orElse(null);
@@ -37,7 +37,6 @@ public class TagService {
                 tag = tagRepository.save(tag);
             }
 
-            // Guardar relación transcripción-tag
             if (!transcriptionTagRepository.existsByTranscriptionIdAndTagId(transcription.getId(), tag.getId())) {
                 transcriptionTagRepository.saveTranscriptionTag(transcription.getId(), tag.getId());
             }

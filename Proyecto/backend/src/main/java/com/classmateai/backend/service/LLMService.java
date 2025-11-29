@@ -105,29 +105,25 @@ public class LLMService {
 
     public String chatWithLLM(String message, String context, Long userId, Long transcriptionId) {
         try {
-            // Intentar usar RAG, pero si falla, usar el contexto tradicional
             String ragContext = "";
             try {
                 // Generar embedding para la pregunta del usuario
                 float[] queryEmbedding = embeddingService.generateQueryEmbedding(message);
                 
                 if (transcriptionId != null) {
-                    // Buscar chunks específicos de esta transcripción
                     List<DocumentChunk> relevantChunks = documentChunkRepository
                         .findNearestChunksByTranscription(transcriptionId, queryEmbedding, 5);
                     ragContext = buildRAGContext(relevantChunks);
                 } else {
-                    // Buscar chunks de todas las transcripciones del usuario
                     List<DocumentChunk> relevantChunks = documentChunkRepository
                         .findNearestChunksByUser(userId, queryEmbedding, 5);
                     ragContext = buildRAGContext(relevantChunks);
                 }
             } catch (Exception ragError) {
-                // Si falla RAG, continuar sin contexto RAG
                 ragContext = "";
             }
             
-            // Combinar contexto proporcionado con contexto RAG
+
             String fullContext = combineContexts(context, ragContext);
             
             String prompt = buildChatPrompt(message, fullContext);
@@ -154,7 +150,6 @@ public class LLMService {
             return parseChatResponse(response);
             
         } catch (Exception e) {
-            // En caso de error, devolver una respuesta simple
             return "Lo siento, tuve un problema al procesar tu pregunta. Por favor, intenta nuevamente. Error: " + e.getMessage();
         }
     }
@@ -245,20 +240,17 @@ public class LLMService {
                 if (message != null) {
                     String content = message.get("content").asText();
 
-                    // --- CORRECCIÓN APLICADA AQUÍ ---
-                    // Reemplazamos el regex por la búsqueda directa del cierre </think>
+
                     int endOfThink = content.lastIndexOf("</think>");
                     if (endOfThink != -1) {
-                        // Cortamos todo lo que está antes del cierre del pensamiento
+
                         content = content.substring(endOfThink + 8);
                     }
                     content = content.trim();
                     // --------------------------------
 
-                    // Intentar parsear como JSON para obtener title y summary
                     try {
-                        // A veces el modelo devuelve el JSON envuelto en bloques de código markdown (```json ... ```)
-                        // Limpiamos eso por si acaso
+
                         if (content.startsWith("```")) {
                             content = content.replace("```json", "").replace("```", "").trim();
                         }
@@ -267,7 +259,7 @@ public class LLMService {
                         String title = jsonContent.get("title").asText();
                         String summary = jsonContent.get("summary").asText();
 
-                        // Verificar que no sean placeholders
+
                         if (title.contains("aquí") || title.contains("titulo") || title.length() < 5) {
                             title = "Transcripción generada";
                         }
@@ -278,8 +270,7 @@ public class LLMService {
                         return String.format("{\"title\":\"%s\",\"summary\":\"%s\"}",
                             title.replace("\"", "\\\""), summary.replace("\"", "\\\""));
                     } catch (Exception e) {
-                        // Si no es JSON, generar título y resumen básicos
-                        // (Mantenemos tu lógica de fallback original)
+
                         if (content.length() > 60) {
                             String title = content.substring(0, 60).replaceAll("[^\\w\\sáéíóúÁÉÍÓÚñÑ-]", "").trim() + "...";
                             String summary = content.replaceAll("[^\\w\\sáéíóúÁÉÍÓÚñÑ.(),-]", "").trim();
@@ -305,31 +296,22 @@ public class LLMService {
                 if (message != null) {
                     String content = message.get("content").asText();
 
-                    // 1. LIMPIEZA DE PENSAMIENTOS (<think>...</think>)
                     int endOfThink = content.lastIndexOf("</think>");
                     if (endOfThink != -1) {
                         content = content.substring(endOfThink + 8);
                     }
 
-                    // 2. LIMPIEZA DE BASURA COMÚN
                     content = content.replace("###LISTA###", "")
                                      .replace("```json", "")
                                      .replace("```", "")
                                      .trim();
-
-                    // 3. SPLIT UNIVERSAL (La clave del éxito)
-                    // Divide por: Saltos de línea (\n), Comas (,) o Barras (|)
-                    // El símbolo '+' significa "uno o más", así que si hay ", \n" lo toma como un solo separador.
                     String[] rawTags = content.split("[,|\\n]+");
 
                     List<String> tags = new ArrayList<>();
                     for (String rawTag : rawTags) {
-                        // Limpieza individual de cada etiqueta
                         String cleanTag = rawTag.trim()
                                                 .replaceAll("^[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]+", "") // Borra "1.", "-", "*" al inicio
                                                 .replaceAll("[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\\s-]", ""); // Borra emojis o símbolos raros
-
-                        // Filtros de calidad
                         if (cleanTag.length() > 2 &&
                             !cleanTag.equalsIgnoreCase("tags") &&
                             cleanTag.length() < 30) {
@@ -344,15 +326,12 @@ public class LLMService {
             }
             return new ArrayList<>();
         } catch (Exception e) {
-            // En caso de error devolvemos lista vacía para no romper el flujo
             return new ArrayList<>();
         }
     }
 
-    // Método auxiliar de respaldo (puedes añadirlo a tu clase)
     private List<String> parseTagsFromCSV(String content) {
         List<String> tags = new ArrayList<>();
-        // Eliminar corchetes json si quedaron
         content = content.replace("{", "").replace("}", "").replace("\"tags\":", "").replace("[", "").replace("]", "");
         String[] tagArray = content.split(",");
         for (String tag : tagArray) {
@@ -442,7 +421,6 @@ public class LLMService {
             return parseTasksResponse(response, userId, transcriptionId);
             
         } catch (Exception e) {
-            // Si hay error, devolver lista vacía
             return new ArrayList<>();
         }
     }
@@ -456,7 +434,6 @@ public class LLMService {
                 if (message != null) {
                     String content = message.get("content").asText();
                     
-                    // Limpiar si viene con formato HTML
                     String cleanContent = content.trim();
                     if (cleanContent.startsWith("<")) {
                         int jsonStart = cleanContent.indexOf("{");
@@ -476,12 +453,10 @@ public class LLMService {
                         Task task = new Task();
                         task.setDescription((String) taskData.get("description"));
                         
-                        // Crear User y establecer ID
                         User user = new User();
                         user.setId(userId);
                         task.setUser(user);
                         
-                        // Set priority
                         String priorityStr = (String) taskData.get("priority");
                         if (priorityStr != null) {
                             task.setPriority(TaskPriority.valueOf(priorityStr.toLowerCase()));
@@ -489,7 +464,6 @@ public class LLMService {
                             task.setPriority(TaskPriority.media);
                         }
                         
-                        // Set due date and time
                         String dueDateStr = (String) taskData.get("due_date");
                         String dueTimeStr = (String) taskData.get("due_time");
                         
@@ -501,10 +475,8 @@ public class LLMService {
                                 }
                                 task.setDueDate(LocalDateTime.parse(dueDateStr + "T" + timeStr));
                             } catch (Exception e) {
-                                // Si hay error parseando fecha, intenta con fechas relativas
                                 LocalDateTime relativeDate = calculateRelativeDueDate(dueDateStr);
                                 if (relativeDate != null && dueTimeStr != null && !dueTimeStr.equals("null")) {
-                                    // Combine relative date with specified time
                                     String[] timeParts = dueTimeStr.split(":");
                                     int hour = Integer.parseInt(timeParts[0]);
                                     int minute = timeParts.length > 1 ? Integer.parseInt(timeParts[1]) : 0;
@@ -515,7 +487,6 @@ public class LLMService {
                             }
                         }
                         
-                        // Crear Transcription y establecer ID
                         Transcription transcription = new Transcription();
                         transcription.setId(transcriptionId);
                         task.setTranscription(transcription);
@@ -571,7 +542,6 @@ public class LLMService {
         
         // Buscar patrones como "a las X pm/am", "a las X", "X pm/am", etc.
         try {
-            // Patrón para "a las X pm/am"
             if (lowerText.contains("a las")) {
                 String[] parts = lowerText.split("a las")[1].trim().split("\\s+");
                 if (parts.length >= 2) {
@@ -631,7 +601,7 @@ public class LLMService {
         
         int currentDay = date.getDayOfWeek().getValue();
         int daysToAdd = (targetDay - currentDay + 7) % 7;
-        if (daysToAdd == 0) daysToAdd = 7; // Si es el mismo día, ir a la siguiente semana
+        if (daysToAdd == 0) daysToAdd = 7;
         
         return date.plusDays(daysToAdd);
     }

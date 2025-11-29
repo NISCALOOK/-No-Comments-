@@ -27,7 +27,6 @@ public class ChatController {
         try {
             User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-            // Obtener contexto si se proporcionó transcriptionId
             String context = "";
             if (request.getTranscriptionId() != null) {
                 Transcription transcription = transcriptionRepository.findByIdAndUser_Id(
@@ -35,7 +34,6 @@ public class ChatController {
                     .orElse(null);
                 
                 if (transcription != null) {
-                    // Construir contexto con la transcripción
                     context = String.format("""
                         Título: %s
                         Resumen: %s

@@ -3,10 +3,10 @@ package com.classmateai.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString; // Importante
+import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.Set; // Importante
+import java.util.Set;
 
 @Entity
 @Table(name = "transcription")
@@ -44,14 +44,11 @@ public class Transcription {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // --- ¡AÑADIDO! (Relación inversa para Tareas) ---
     @OneToMany(mappedBy = "transcription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private Set<Task> tasks;
     
     
-
-    // --- ¡AÑADIDO! (Relación con Etiquetas) ---
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
     @JoinTable(
         name = "transcription_tag",

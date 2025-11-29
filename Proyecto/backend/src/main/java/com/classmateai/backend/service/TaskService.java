@@ -24,7 +24,6 @@ public class TaskService {
         return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
     }
     
-    // MÉTODO createTask ELIMINADO.
     
     // GET /api/tasks
     @Transactional(readOnly = true)

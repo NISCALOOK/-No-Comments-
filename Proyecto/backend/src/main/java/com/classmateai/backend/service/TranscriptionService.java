@@ -40,7 +40,7 @@ public class TranscriptionService {
         return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
     }
 
-    // GET /api/transcriptions (Sin cambios)
+    // GET /api/transcriptions
     @Transactional(readOnly = true)
     public List<TranscriptionSimpleResponse> getTranscriptions() {
         Long userId = getCurrentUserId();
@@ -53,22 +53,16 @@ public class TranscriptionService {
     public TranscriptionDetailResponse getTranscriptionDetails(Long transcriptionId) {
         Long userId = getCurrentUserId();
 
-        // 1. Buscamos la transcripción (Tu código ya era correcto)
         Transcription transcription = transcriptionRepository.findByIdAndUser_Id(transcriptionId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transcripción no encontrada o no pertenece al usuario"));
 
-        // 2. Buscamos EXPLÍCITAMENTE las tareas usando los repositorios
         List<Task> tasks = taskRepository.findByTranscription_Id(transcriptionId);
 
-        // 3. Mapeamos todo junto
         return mapToDetailResponse(transcription, tasks);
     }
 
 
-    // --- Funciones Mágicas (Mapeadores) ---
-
     private TranscriptionSimpleResponse mapToSimpleResponse(Transcription t) {
-        // (Este método no cambia)
         TranscriptionSimpleResponse res = new TranscriptionSimpleResponse();
         res.setId(t.getId());
         res.setTitle(t.getTitle());
@@ -77,7 +71,6 @@ public class TranscriptionService {
         return res;
     }
 
-    // Ahora acepta las listas que le pasamos
     private TranscriptionDetailResponse mapToDetailResponse(Transcription t, List<Task> tasks) {
         TranscriptionDetailResponse res = new TranscriptionDetailResponse();
         res.setId(t.getId());
@@ -87,7 +80,6 @@ public class TranscriptionService {
         res.setFullText(t.getFullText());
         res.setSummary(t.getSummary());
 
-        // Mapea las tareas (List<Task> -> List<TaskResponse>)
         List<TaskResponse> taskDtos = tasks.stream()
                 .map(taskService::mapToTaskResponse)
                 .collect(Collectors.toList());

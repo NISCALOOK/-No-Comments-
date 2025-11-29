@@ -73,7 +73,6 @@ public class AudioProcessingService {
 
         Path tempFilePath = audioFile.toPath();
         try {
-            // Paso 1: Transcribir audio con Whisper
             logger.info("Iniciando transcripción con Whisper...");
             transcription.setStatus("TRANSCRIBING");
             transcription.setUpdatedAt(LocalDateTime.now());
@@ -85,7 +84,6 @@ public class AudioProcessingService {
                 throw new RuntimeException("La transcripción no produjo texto");
             }
 
-            // Guardar texto completo
             transcription.setFullText(fullText);
             transcription.setStatus("PROCESSING");
             transcription.setUpdatedAt(LocalDateTime.now());
@@ -93,14 +91,11 @@ public class AudioProcessingService {
 
             logger.info("Transcripción completada. Texto长度: {} caracteres", fullText.length());
 
-            // Paso 2: Generar resumen y título con LLM
             logger.info("Generando resumen y título con LLM...");
             String summaryResponse = llmService.generateSummaryAndTitle(fullText);
             
-            // Parsear respuesta JSON - limpiar si viene con formato HTML
             String cleanResponse = summaryResponse.trim();
             if (cleanResponse.startsWith("<")) {
-                // Si la respuesta empieza con <, probablemente es HTML, extraer solo el JSON
                 int jsonStart = cleanResponse.indexOf("{");
                 int jsonEnd = cleanResponse.lastIndexOf("}");
                 if (jsonStart != -1 && jsonEnd != -1 && jsonEnd > jsonStart) {
@@ -131,7 +126,6 @@ public class AudioProcessingService {
 
             logger.info("Resumen y título generados. Título: {}", title);
 
-            // Paso 3: Generar embeddings y chunks
             logger.info("Generando embeddings y chunks...");
             transcription.setStatus("GENERATING_EMBEDDINGS");
             transcription.setUpdatedAt(LocalDateTime.now());
@@ -139,11 +133,9 @@ public class AudioProcessingService {
 
             generateDocumentChunks(transcription.getId(), fullText);
 
-            // Paso 4: Generar etiquetas
             logger.info("Generando etiquetas...");
             List<String> tags = llmService.generateTags(fullText, summary);
             
-            // Guardar etiquetas
             tagService.saveTagsForTranscription(transcription, tags);
             
             transcription.setStatus("COMPLETED");
@@ -152,7 +144,6 @@ public class AudioProcessingService {
 
             logger.info("Procesamiento completado exitosamente para transcripción ID: {}", transcriptionId);
             
-            // Paso 5: Generar tareas automáticamente (asíncrono)
             logger.info("Iniciando generación automática de tareas...");
             generateTasksFromTranscription(transcriptionId, user.getId(), fullText, summary);
 
@@ -163,15 +154,12 @@ public class AudioProcessingService {
             transcription.setUpdatedAt(LocalDateTime.now());
             transcriptionRepository.save(transcription);
             
-            // Podríamos guardar el error en un campo adicional si fuera necesario
-            // transcription.setErrorMessage(e.getMessage());
+
         } finally {
-            // Limpiar archivo temporal
             if (tempFilePath != null) {
                 try {
                     Files.deleteIfExists(tempFilePath);
                 } catch (IOException e) {
-                    // Log error but don't fail the transcription
                     System.err.println("Error al eliminar archivo temporal: " + e.getMessage());
                 }
             }
@@ -190,7 +178,6 @@ public class AudioProcessingService {
                 taskRepository.saveAll(tasks);
                 logger.info("Se generaron {} tareas automáticamente para transcripción ID: {}", tasks.size(), transcriptionId);
                 
-                // Log de las tareas generadas para debugging
                 for (Task task : tasks) {
                     logger.info("Tarea generada: {} - Prioridad: {} - Fecha: {}", 
                         task.getDescription(), task.getPriority(), task.getDueDate());
@@ -201,7 +188,6 @@ public class AudioProcessingService {
             
         } catch (Exception e) {
             logger.error("Error generando tareas para transcripción ID: {}", transcriptionId, e);
-            // No fallar el procesamiento principal si hay error en generación de tareas
         }
     }
 
@@ -227,8 +213,6 @@ public class AudioProcessingService {
                 );
                 documentChunks.add(chunk);
             }
-            
-            // Guardar todos los chunks
             documentChunkRepository.saveAll(documentChunks);
             
             logger.info("Se guardaron {} chunks con embeddings para transcripción ID: {}", chunks.size(), transcriptionId);
@@ -242,7 +226,7 @@ public class AudioProcessingService {
     private List<String> splitTextIntoChunks(String text, int maxChunkSize) {
         List<String> chunks = new ArrayList<>();
         
-        // Dividir por párrafos primero (mejor regex para manejar diferentes saltos de línea)
+        // Dividir por párrafos primero
         String[] paragraphs = text.split("\\n\\n+|\\r\\n\\r\\n+");
         
         StringBuilder currentChunk = new StringBuilder();
@@ -358,7 +342,6 @@ public class AudioProcessingService {
             }
         }
         
-        // Logging para verificar tamaños
         logger.info("Chunks generados - Total: {}, Tamaños: {}", 
             validatedChunks.size(),
             validatedChunks.stream().map(String::length).toList());
