@@ -1,12 +1,24 @@
 package com.classmateai.backend.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAsync
 public class AsyncConfig {
-    // Esta clase habilita el procesamiento asíncrono.
-    // Al estar separada, @DataJpaTest puede ignorarla o manejarla mejor,
-    // evitando el error de carga de contexto.
+
+    @Bean(name = "audioProcessingExecutor")
+    public Executor audioProcessingExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(5);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("AudioProcessing-");
+        executor.initialize();
+        return executor;
+    }
 }

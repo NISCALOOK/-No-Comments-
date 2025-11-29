@@ -53,4 +53,14 @@ public class Transcription {
     @OneToMany(mappedBy = "transcription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private Set<QuestionAnswer> questionsAndAnswers;
+
+    // --- ¡AÑADIDO! (Relación con Etiquetas) ---
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "transcription_tag",
+        joinColumns = @JoinColumn(name = "transcription_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    @ToString.Exclude
+    private Set<Tag> tags;
 }

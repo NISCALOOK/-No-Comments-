@@ -21,6 +21,6 @@ spring.jpa.show-sql=true
 storage.upload-dir=./classmate-uploads
 
 # URLs y Keys de APIs Externas
-api.whisper.url=https://URL_DE_LA_API_DE_WHISPER
-api.llm.url=https://URL_DE_LA_API_DEL_LLM
-api.llm.key=PON_TU_API_KEY_SECRETA_DEL_LLM_AQUI
+whisper.api.key=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
+llm.api.url=https://hubs02225.snia.ch/v1
+llm.api.key=sk-gQr3jpBpdG684nG4T91ZLeTQGLkLoYRsjSHMxnJBqJdw05qf
