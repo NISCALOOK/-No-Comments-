@@ -1,57 +1,50 @@
+// src/components/LoginPage/LoginPage.tsx
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { login } from '../../api/auth'; // <-- Importa la función de login
+import { useAuthStore } from '../../store'; // <-- Importa el store
 import './LoginPage.css';
 
 const LoginPage = () => {
-  // Estados del formulario
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  // Estados de UI
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState('');
   
-  // Hook de navegación para redirigir
   const navigate = useNavigate();
+
+  // Obtén la función setAuth del store
+  const setAuth = useAuthStore((state) => state.setAuth);
   
-  // Manejo de envío
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setApiError('');
     
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
+      // 1. Llama a la API a través de nuestro servicio
+      const authData = await login(email, password);
       
-      let data;
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        throw new Error('Error en el servidor. Inténtalo más tarde.');
-      }
+      // 2. ¡Actualiza el estado global de la aplicación!
+      setAuth(authData);
+      // Gracias al middleware 'persist' de Zustand, esto también guardará
+      // el token y el usuario en localStorage automáticamente.
       
-      if (!response.ok) {
-        throw new Error(data.error || 'Error en el inicio de sesión');
-      }
-      
-      // Persistencia de token
-      localStorage.setItem('authToken', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
-      // Redirección exitosa usando React Router
+      // 3. Ahora sí, redirige con confianza
       navigate('/dashboard');
+      
     } catch (err: any) {
-      setApiError(err.message || 'Error de conexión. Inténtalo de nuevo.');
+      // El interceptor de axios ya maneja errores 401, pero aquí capturamos otros
+      const errorMessage = err.response?.data?.message || err.message || 'Error de conexión. Inténtalo de nuevo.';
+      setApiError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
+    // ... Tu JSX se mantiene exactamente igual ...
     <div className="form-container">
       <h2 className="form-title">Iniciar Sesión</h2>
       <form onSubmit={handleSubmit} className="form">
