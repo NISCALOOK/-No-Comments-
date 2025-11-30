@@ -103,14 +103,6 @@ npm install
 npm run dev
 ```
 
-### **7. Variables de Entorno**
-Crear archivo `.env` en la raíz del proyecto:
-```env
-OPENAI_API_KEY=tu_api_key_aqui
-NVIDIA_API_KEY=tu_api_key_nvidia_aqui
-DB_PASSWORD=tu_password_postgresql
-```
-
 ---
 
 ## 📁 Estructura del Proyecto
