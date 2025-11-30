@@ -1,24 +1,21 @@
+
 spring.application.name=backend
-server.port=8080
-
-# Aumentar límite de subida de archivos (50MB)
-spring.servlet.multipart.max-file-size=50MB
-spring.servlet.multipart.max-request-size=50MB
-
 spring.datasource.url=jdbc:postgresql://localhost:5432/classmate_db_ai
 spring.datasource.username=prueba
 spring.datasource.password=prueba
 spring.datasource.driver-class-name=org.postgresql.Driver
 
+spring.jpa.database=postgresql
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
-spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 
-storage.upload-dir=./classmate-uploads
+whisper.api.key=clave_aqui
+llm.api.key=clave_aqui
+embeddings.api.key=clave_aqui
 
-whisper.api.key=
-llm.api.url=
-llm.api.key=
-embeddings.api.url=
-embeddings.api.key=
+llm.api.url=https://api.openai.com/v1/chat/completions
+embeddings.api.url=https://integrate.api.nvidia.com/v1/embeddings
+storage.upload-dir=uploads
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
