@@ -8,7 +8,6 @@ import Header from './Header/Header';   // Importamos tu componente Header corre
 
 
 
-
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 

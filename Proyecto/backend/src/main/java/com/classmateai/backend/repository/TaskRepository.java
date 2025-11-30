@@ -7,8 +7,18 @@ import java.util.Optional;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
+<<<<<<< HEAD
     Optional<Task> findByIdAndUser_Id(Long taskId, Long userId);
     List<Task> findByUser_Id(Long userId);
 
     List<Task> findByTranscription_Id(Long transcriptionId);
 }
+=======
+    // (Tus métodos existentes están perfectos)
+    Optional<Task> findByIdAndUser_Id(Long taskId, Long userId);
+    List<Task> findByUser_Id(Long userId);
+
+    // "Encuentra todas las Task que tengan este transcription_id"
+    List<Task> findByTranscription_Id(Long transcriptionId);
+}
+>>>>>>> b1c20e0c2f38419b1e4d501ef49ed331f4c02454

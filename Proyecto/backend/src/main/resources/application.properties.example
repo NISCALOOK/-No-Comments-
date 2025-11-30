@@ -1,0 +1,26 @@
+# --- PLANTILLA DE CONFIGURACIÓN DE CLASSMATE AI ---
+#
+# Instrucciones:
+# 1. Renombra este archivo a "application.properties"
+# 2. Rellena los valores de las contraseñas y API keys.
+#
+
+spring.application.name=backend
+# Puerto del servidor
+server.port=8080
+
+# Conexión a la Base de Datos (del docker-compose.yml)
+spring.datasource.url=jdbc:postgresql://localhost:5432/classmate_ai_db
+spring.datasource.username=classmate_user
+spring.datasource.password=
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# Almacenamiento local
+storage.upload-dir=./classmate-uploads
+
+# URLs y Keys de APIs Externas
+api.whisper.url=https://URL_DE_LA_API_DE_WHISPER
+api.llm.url=https://URL_DE_LA_API_DEL_LLM
+api.llm.key=PON_TU_API_KEY_SECRETA_DEL_LLM_AQUI

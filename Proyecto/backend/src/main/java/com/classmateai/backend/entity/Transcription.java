@@ -3,10 +3,17 @@ package com.classmateai.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+<<<<<<< HEAD
 import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+=======
+import lombok.ToString; // Importante
+
+import java.time.LocalDateTime;
+import java.util.Set; // Importante
+>>>>>>> b1c20e0c2f38419b1e4d501ef49ed331f4c02454
 
 @Entity
 @Table(name = "transcription")
@@ -44,10 +51,15 @@ public class Transcription {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+<<<<<<< HEAD
+=======
+    // --- ¡AÑADIDO! (Relación inversa para Tareas) ---
+>>>>>>> b1c20e0c2f38419b1e4d501ef49ed331f4c02454
     @OneToMany(mappedBy = "transcription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private Set<Task> tasks;
     
+<<<<<<< HEAD
     
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
     @JoinTable(
@@ -58,3 +70,10 @@ public class Transcription {
     @ToString.Exclude
     private Set<Tag> tags;
 }
+=======
+    // --- ¡AÑADIDO! (Relación inversa para Q&A) ---
+    @OneToMany(mappedBy = "transcription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Set<QuestionAnswer> questionsAndAnswers;
+}
+>>>>>>> b1c20e0c2f38419b1e4d501ef49ed331f4c02454

@@ -24,6 +24,10 @@ public class TaskService {
         return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
     }
     
+<<<<<<< HEAD
+=======
+    // MÉTODO createTask ELIMINADO.
+>>>>>>> b1c20e0c2f38419b1e4d501ef49ed331f4c02454
     
     // GET /api/tasks
     @Transactional(readOnly = true)
@@ -77,4 +81,8 @@ public class TaskService {
         res.setCompleted(task.isCompleted());
         return res;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> b1c20e0c2f38419b1e4d501ef49ed331f4c02454

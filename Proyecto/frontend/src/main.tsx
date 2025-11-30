@@ -9,7 +9,6 @@ import routes from './routes'; // <-- 2. Asegúrate que esta ruta sea correcta
 
 // Importa aquí tus estilos globales
 
-
 // No necesitas el componente App para el enrutamiento.
 // Si App.tsx no hace nada más, puedes ignorarlo por ahora.
 ReactDOM.createRoot(document.getElementById('root')!).render(

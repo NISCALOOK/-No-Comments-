@@ -10,6 +10,10 @@ public class TaskResponse {
     private LocalDateTime dueDate;
     private boolean isCompleted;
     
+<<<<<<< HEAD
+=======
+    // Getters y Setters
+>>>>>>> b1c20e0c2f38419b1e4d501ef49ed331f4c02454
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getDescription() { return description; }
@@ -20,4 +24,8 @@ public class TaskResponse {
     public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
     public boolean isCompleted() { return isCompleted; }
     public void setCompleted(boolean completed) { isCompleted = completed; }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> b1c20e0c2f38419b1e4d501ef49ed331f4c02454
