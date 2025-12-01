@@ -6,7 +6,6 @@ import Sidebar from './Sidebar/Sidebar'; // Importamos tu componente Sidebar
 import Header from './Header/Header';   // Importamos tu componente Header corregido
 
 
-import '../../styles/layout.css'; // CSS para .app-container, .sidebar, .main-content
 
 
 const Dashboard = () => {
@@ -23,11 +22,7 @@ const Dashboard = () => {
     return (
     <div className="app-container">
       <aside className={`sidebar ${isSidebarOpen ? 'sidebar--open' : ''}`}>
-        {/*
-          ¡LA LÍNEA CLAVE!
-          Le pasamos la función 'closeSidebar' como una prop llamada 'onClose'.
-          Ahora el componente Sidebar tiene la herramienta que necesita.
-        */}
+      
         <Sidebar onClose={closeSidebar} />
       </aside>
       <main className="main-content">

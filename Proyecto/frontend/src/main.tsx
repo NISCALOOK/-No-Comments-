@@ -8,8 +8,6 @@ import { RouterProvider } from 'react-router-dom'; // <-- 1. Importa RouterProvi
 import routes from './routes'; // <-- 2. Asegúrate que esta ruta sea correcta
 
 // Importa aquí tus estilos globales
-import './styles/globals.css';
-import './styles/layout.css';
 
 // No necesitas el componente App para el enrutamiento.
 // Si App.tsx no hace nada más, puedes ignorarlo por ahora.
