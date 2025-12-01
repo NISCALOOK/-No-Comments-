@@ -2,13 +2,14 @@ package com.classmateai.backend.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import java.io.File;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.Map;
 import java.util.List;
@@ -37,25 +38,53 @@ public class WhisperService {
                 wavFilePath = convertToWav(tempFilePath);
             }
 
-            String projectRoot = System.getProperty("user.dir").replace("/Proyecto/backend", "");
-            String venvPath = projectRoot + "/venv/bin/activate";
-            String pythonClientsPath = projectRoot + "/python-clients/scripts/asr/transcribe_file_offline.py";
+            String projectRoot = System.getProperty("user.dir").replace("/Proyecto/backend", "").replace("\\Proyecto\\backend", "");
             
-            ProcessBuilder pb = new ProcessBuilder(
-                "bash", "-c", "source " + venvPath + " && python " + pythonClientsPath + " " +
-                "--server " + WHISPER_SERVER + " " +
-                "--use-ssl " +
-                "--metadata function-id " + FUNCTION_ID + " " +
-                "--metadata authorization \"Bearer " + whisperApiKey + "\" " +
-                "--language-code es " +
-                "--input-file " + wavFilePath.toString() + " " +
-                "--max-message-length 100000000"
-            );
+            // Detectar sistema operativo y construir paths apropiados
+            boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
+            String venvPath, pythonCommand, scriptPath;
+            
+            if (isWindows) {
+                venvPath = projectRoot + "\\venv\\Scripts\\activate.bat";
+                pythonCommand = "python";
+                scriptPath = projectRoot + "\\python-clients\\scripts\\asr\\transcribe_file_offline.py";
+            } else {
+                venvPath = projectRoot + "/venv/bin/activate";
+                pythonCommand = "python";
+                scriptPath = projectRoot + "/python-clients/scripts/asr/transcribe_file_offline.py";
+            }
+            
+            // Construir comando según el SO
+            List<String> command = new ArrayList<>();
+            if (isWindows) {
+                command.add("cmd");
+                command.add("/c");
+                command.add(venvPath + " && " + pythonCommand + " " + scriptPath + " " +
+                    "--server " + WHISPER_SERVER + " " +
+                    "--use-ssl " +
+                    "--metadata function-id " + FUNCTION_ID + " " +
+                    "--metadata authorization \"Bearer " + whisperApiKey + "\" " +
+                    "--language-code es " +
+                    "--input-file \"" + wavFilePath.toString() + "\" " +
+                    "--max-message-length 100000000");
+            } else {
+                command.add("bash");
+                command.add("-c");
+                command.add("source " + venvPath + " && " + pythonCommand + " " + scriptPath + " " +
+                    "--server " + WHISPER_SERVER + " " +
+                    "--use-ssl " +
+                    "--metadata function-id " + FUNCTION_ID + " " +
+                    "--metadata authorization \"Bearer " + whisperApiKey + "\" " +
+                    "--language-code es " +
+                    "--input-file " + wavFilePath.toString() + " " +
+                    "--max-message-length 100000000");
+            }
+            
+            ProcessBuilder pb = new ProcessBuilder(command);
 
             pb.redirectErrorStream(true);
             Process process = pb.start();
 
-            // Leer salida
             StringBuilder output = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream()))) {
