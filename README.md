@@ -62,6 +62,7 @@ git clone https://github.com/nvidia-riva/python-clients.git
 # Instalar dependencias de los clientes
 cd python-clients
 pip install -r requirements.txt
+pip install nvidia-riva-client
 cd ..
 ```
 
