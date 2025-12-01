@@ -17,8 +17,11 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 
 storage.upload-dir=./classmate-uploads
 
-whisper.api.key=
-llm.api.url=
-llm.api.key=
-embeddings.api.url=
-embeddings.api.key=
+whisper.api.key=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
+llm.api.url=https://hubs02225.snia.ch/v1
+llm.api.key=sk-3oM8OsP8LqwMu6jnMXHqWMCoguijmD9wToLWPx80pZDGSXCS
+embeddings.api.url=https://integrate.api.nvidia.com/v1/embeddings
+embeddings.api.key=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
+google.client.id=807969473440-5srv0gicff8b78o9liqkk4naohk2h5jc.apps.googleusercontent.com
+google.client.secret=eGZ_85qq22fWmEhJ5VUOQ7qjmHiM
+google.redirect.uri=http://localhost:8080/oauth2/callback
