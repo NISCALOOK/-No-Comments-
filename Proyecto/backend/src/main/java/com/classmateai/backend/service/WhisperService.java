@@ -57,17 +57,31 @@ public class WhisperService {
             // Construir comando según el SO
             List<String> command = new ArrayList<>();
             if (isWindows) {
+                // Para Windows, usamos cmd con argumentos separados para mejor manejo de espacios
                 command.add("cmd");
                 command.add("/c");
-                command.add(venvPath + " && " + pythonCommand + " " + scriptPath + " " +
-                    "--server " + WHISPER_SERVER + " " +
-                    "--use-ssl " +
-                    "--metadata function-id " + FUNCTION_ID + " " +
-                    "--metadata authorization \"Bearer " + whisperApiKey + "\" " +
-                    "--language-code es " +
-                    "--input-file \"" + wavFilePath.toString() + "\" " +
-                    "--max-message-length 100000000");
+                command.add("call");
+                command.add(venvPath);
+                command.add("&&");
+                command.add(pythonCommand);
+                command.add(scriptPath);
+                command.add("--server");
+                command.add(WHISPER_SERVER);
+                command.add("--use-ssl");
+                command.add("--metadata");
+                command.add("function-id");
+                command.add(FUNCTION_ID);
+                command.add("--metadata");
+                command.add("authorization");
+                command.add("Bearer " + whisperApiKey);
+                command.add("--language-code");
+                command.add("es");
+                command.add("--input-file");
+                command.add(wavFilePath.toString());
+                command.add("--max-message-length");
+                command.add("100000000");
             } else {
+                // Para Linux/Mac, mantenemos el formato original
                 command.add("bash");
                 command.add("-c");
                 command.add("source " + venvPath + " && " + pythonCommand + " " + scriptPath + " " +
