@@ -57,7 +57,7 @@ venv\Scripts\activate
 ### **3. Instalar Clientes NVIDIA (Python Clients)**
 ```bash
 # Clonar clientes NVIDIA para transcripción
-git clone https://github.com/NVIDIA-AI-IOT/python-clients.git
+git clone https://github.com/nvidia-riva/python-clients.git
 
 # Instalar dependencias de los clientes
 cd python-clients
