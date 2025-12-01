@@ -99,7 +99,7 @@ const TranscriptionViewer: React.FC = () => {
             {selectedTranscription.fullText && (
               <section>
                 <h3>Texto Completo</h3>
-                <p style={{ whiteSpace: 'pre-wrap', background: '#f9f9f9', padding: '1rem', borderRadius: '5px' }}>
+                <p style={{ whiteSpace: 'pre-wrap', background: '#e20a0aff', padding: '1rem', borderRadius: '5px' }}>
                   {selectedTranscription.fullText}
                 </p>
               </section>
@@ -108,7 +108,7 @@ const TranscriptionViewer: React.FC = () => {
             {selectedTranscription.summary && (
               <section>
                 <h3>Resumen (IA)</h3>
-                <p style={{ background: '#e6f7ff', padding: '1rem', borderRadius: '5px', borderLeft: '4px solid #1890ff' }}>
+                <p style={{ background: '#f53615ff', padding: '1rem', borderRadius: '5px', borderLeft: '4px solid #1890ff' }}>
                   {selectedTranscription.summary}
                 </p>
               </section>
@@ -119,7 +119,7 @@ const TranscriptionViewer: React.FC = () => {
                 <h3>Etiquetas</h3>
                 <div>
                   {selectedTranscription.tags.map(tag => (
-                    <span key={tag} style={{ background: '#f0f0f0', padding: '4px 8px', borderRadius: '12px', marginRight: '5px' }}>
+                    <span key={tag} style={{ background: '#cf1717ff', padding: '4px 8px', borderRadius: '12px', marginRight: '5px' }}>
                       #{tag}
                     </span>
                   ))}
