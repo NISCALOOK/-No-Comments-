@@ -83,7 +83,7 @@ public class LLMService {
                 Map.of("role", "user", "content", prompt)
             ),
             "temperature", 0.2,
-            "max_tokens", 5000
+            "max_tokens", 10000
         );
 
         try {
