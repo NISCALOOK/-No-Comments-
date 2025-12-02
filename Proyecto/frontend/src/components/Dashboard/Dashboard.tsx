@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom'; // ¡Importante! Outlet renderiza las rutas anidadas.
 import Sidebar from './Sidebar/Sidebar'; // Importamos tu componente Sidebar
 import Header from './Header/Header';   // Importamos tu componente Header corregido
-
+import './Dashboard.css';
 
 
 

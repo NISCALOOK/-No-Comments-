@@ -1,24 +1,20 @@
 // src/components/Dashboard/TranscriptionViewer/TranscriptionViewer.tsx
-
 import React, { useState, useEffect } from 'react';
 import { getAllTranscriptions, getTranscriptionById } from '../../../api/transcriptions';
 import type { Transcription } from '../../../types';
+import './TranscriptionViewer.css'; // Asegúrate de que esta línea esté presente
 
 const TranscriptionViewer: React.FC = () => {
-  // Estado para la lista de todas las transcripciones
   const [transcriptions, setTranscriptions] = useState<Transcription[]>([]);
-  // Estado para la transcripción seleccionada que se mostrará al detalle
   const [selectedTranscription, setSelectedTranscription] = useState<Transcription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Efecto para cargar la lista de transcripciones al montar el componente
   useEffect(() => {
     const fetchTranscriptions = async () => {
       try {
         const data = await getAllTranscriptions();
         setTranscriptions(data);
-        // Opcional: Seleccionar la primera transcripción por defecto
         if (data.length > 0) {
           const details = await getTranscriptionById(data[0].id);
           setSelectedTranscription(details);
@@ -29,16 +25,12 @@ const TranscriptionViewer: React.FC = () => {
         setIsLoading(false);
       }
     };
-
     fetchTranscriptions();
-  }, []); // El array vacío significa que se ejecuta solo una vez
+  }, []);
 
   const handleSelectTranscription = async (id: number) => {
-    // Para evitar recargas innecesarias si el mismo ya está seleccionado
     if (selectedTranscription?.id === id) return;
-
     try {
-        // Podríamos añadir un estado de carga individual aquí si quisiéramos
         const details = await getTranscriptionById(id);
         setSelectedTranscription(details);
     } catch (err: any) {
@@ -47,39 +39,36 @@ const TranscriptionViewer: React.FC = () => {
   };
 
   if (isLoading) {
-    return <p>Cargando lista de transcripciones...</p>;
+    return <div className="loading-container"><p>Cargando lista de transcripciones...</p></div>;
   }
-
   if (error) {
-    return <p style={{ color: 'red' }}>{error}</p>;
+    return <p className="error-message">{error}</p>;
   }
 
   return (
-    <div style={{ display: 'flex', height: '100%' }}>
-      {/* Lista de Transcripciones */}
-      <div style={{ width: '30%', borderRight: '1px solid #ccc', padding: '1rem' }}>
-        <h3>Transcripciones</h3>
+    // <-- CLASE PRINCIPAL DEL LAYOUT
+    <div className="transcription-viewer-container">
+      
+      {/* <-- PANEL DE LA LISTA */}
+      <div className="transcription-list">
+        <h3 className="list-header">Transcripciones</h3>
         {transcriptions.length === 0 ? (
-          <p>No tienes transcripciones aún. ¡Sube un audio!</p>
+          <p className="empty-state-message">No tienes transcripciones aún. ¡Sube un audio!</p>
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0 }}>
+          <ul className="list-items">
             {transcriptions.map((t) => (
               <li
                 key={t.id}
                 onClick={() => handleSelectTranscription(t.id)}
-                style={{
-                  padding: '10px',
-                  cursor: 'pointer',
-                  backgroundColor: selectedTranscription?.id === t.id ? '#e0e0e0' : 'transparent',
-                  borderRadius: '5px',
-                  marginBottom: '5px'
-                }}
+                // <-- CLASE DINÁMICA PARA EL ITEM ACTIVO
+                className={`transcription-item ${selectedTranscription?.id === t.id ? 'is-active' : ''}`}
               >
-                <strong>{t.title}</strong>
+                <strong className="item-title">{t.title}</strong>
                 <br />
-                <small>{new Date(t.createdAt).toLocaleDateString()}</small>
+                <small className="item-date">{new Date(t.createdAt).toLocaleDateString()}</small>
                 <br />
-                <span style={{ color: t.status === 'COMPLETED' ? 'green' : 'orange' }}>
+                {/* <-- CLASE DINÁMICA PARA EL ESTADO */}
+                <span className={`status-badge ${t.status === 'COMPLETED' ? 'status-completed' : 'status-pending'}`}>
                   {t.status}
                 </span>
               </li>
@@ -87,53 +76,53 @@ const TranscriptionViewer: React.FC = () => {
           </ul>
         )}
       </div>
-
-      {/* Vista de Detalles */}
-      <div style={{ flexGrow: 1, padding: '1rem' }}>
+      
+      {/* <-- PANEL DE DETALLES */}
+      <div className="transcription-details">
         {selectedTranscription ? (
-          <div>
-            <h2>{selectedTranscription.title}</h2>
-            <p><strong>Estado:</strong> {selectedTranscription.status}</p>
-            <p><strong>Creada:</strong> {new Date(selectedTranscription.createdAt).toLocaleString()}</p>
-
+          <div className="details-content">
+            <h2 className="details-title">{selectedTranscription.title}</h2>
+            <p className="details-info"><strong>Estado:</strong> {selectedTranscription.status}</p>
+            <p className="details-info"><strong>Creada:</strong> {new Date(selectedTranscription.createdAt).toLocaleString()}</p>
+            
             {selectedTranscription.fullText && (
               <section>
-                <h3>Texto Completo</h3>
-                <p style={{ whiteSpace: 'pre-wrap', background: '#e20a0aff', padding: '1rem', borderRadius: '5px' }}>
+                <h3 className="details-section-title">Texto Completo</h3>
+                {/* <-- CLASE PARA EL CONTENEDOR DE TEXTO */}
+                <p className="content-box full-text-content">
                   {selectedTranscription.fullText}
                 </p>
               </section>
             )}
-
             {selectedTranscription.summary && (
               <section>
-                <h3>Resumen (IA)</h3>
-                <p style={{ background: '#f53615ff', padding: '1rem', borderRadius: '5px', borderLeft: '4px solid #1890ff' }}>
+                <h3 className="details-section-title">Resumen (IA)</h3>
+                {/* <-- CLASE PARA EL CONTENEDOR DE RESUMEN */}
+                <p className="content-box summary-content">
                   {selectedTranscription.summary}
                 </p>
               </section>
             )}
-
             {selectedTranscription.tags && selectedTranscription.tags.length > 0 && (
               <section>
-                <h3>Etiquetas</h3>
-                <div>
+                <h3 className="details-section-title">Etiquetas</h3>
+                <div className="tags-container">
                   {selectedTranscription.tags.map(tag => (
-                    <span key={tag} style={{ background: '#cf1717ff', padding: '4px 8px', borderRadius: '12px', marginRight: '5px' }}>
+                    // <-- CLASE PARA CADA ETIQUETA -->
+                    <span key={tag} className="tag">
                       #{tag}
                     </span>
                   ))}
                 </div>
               </section>
             )}
-
             {selectedTranscription.tasks && selectedTranscription.tasks.length > 0 && (
               <section>
-                <h3>Tareas Generadas</h3>
-                <ul>
+                <h3 className="details-section-title">Tareas Generadas</h3>
+                <ul className="tasks-list">
                   {selectedTranscription.tasks.map(task => (
-                    <li key={task.id}>
-                      {task.description} (Prioridad: {task.priority})
+                    <li key={task.id} className="task-item">
+                      {task.description} <span className="task-priority">(Prioridad: {task.priority})</span>
                     </li>
                   ))}
                 </ul>
@@ -141,7 +130,7 @@ const TranscriptionViewer: React.FC = () => {
             )}
           </div>
         ) : (
-          <p>Selecciona una transcripción de la lista para ver sus detalles.</p>
+          <p className="placeholder-message">Selecciona una transcripción de la lista para ver sus detalles.</p>
         )}
       </div>
     </div>

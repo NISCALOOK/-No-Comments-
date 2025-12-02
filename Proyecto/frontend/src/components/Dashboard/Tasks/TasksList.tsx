@@ -1,9 +1,8 @@
 // src/components/Dashboard/Tasks/TasksList.tsx
-
 import React, { useState, useEffect } from 'react';
 import type { Task } from '../../../types';
 import { getAllTasks, updateTask, deleteTask } from '../../../api/task';
-
+import './TasksList.css'; // <-- Asegúrate de importar el CSS
 
 const TasksList: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -21,18 +20,15 @@ const TasksList: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchTasks();
   }, []);
 
   const handleToggleComplete = async (taskId: number) => {
     const taskToUpdate = tasks.find(t => t.id === taskId);
     if (!taskToUpdate) return;
-
     const originalState = taskToUpdate.completed;
     // Optimistic UI update
     setTasks(tasks.map(t => t.id === taskId ? { ...t, completed: !t.completed } : t));
-
     try {
       await updateTask(taskId, { isCompleted: !taskToUpdate.completed });
     } catch (err) {
@@ -47,7 +43,6 @@ const TasksList: React.FC = () => {
     
     const originalTasks = tasks;
     setTasks(tasks.filter(t => t.id !== taskId));
-
     try {
       await deleteTask(taskId);
     } catch (err) {
@@ -56,30 +51,36 @@ const TasksList: React.FC = () => {
     }
   };
 
-  if (loading) return <p>Cargando tareas...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (loading) return <div className="loading-container"><p>Cargando tareas...</p></div>;
+  if (error) return <p className="error-message">{error}</p>;
 
   return (
-    <div>
-      <h2>Mis Tareas</h2>
+    // <-- CLASE PRINCIPAL DEL CONTENEDOR
+    <div className="tasks-list-container">
+      <h2 className="tasks-header">Mis Tareas</h2>
       {tasks.length === 0 ? (
-        <p>No tienes tareas pendientes.</p>
+        <p className="empty-state-message">No tienes tareas pendientes.</p>
       ) : (
-        <ul>
+        // <-- LISTA DE TAREAS
+        <ul className="tasks-grid">
           {tasks.map(task => (
-            <li key={task.id} style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            // <-- ITEM INDIVIDUAL DE TAREA
+            <li key={task.id} className="task-item">
               <input
                 type="checkbox"
                 checked={task.completed}
                 onChange={() => handleToggleComplete(task.id)}
+                className="task-checkbox"
               />
-              <span style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>
+              {/* <-- CLASE DINÁMICA PARA EL TEXTO COMPLETADO */}
+              <span className={`task-description ${task.completed ? 'is-completed' : ''}`}>
                 {task.description}
               </span>
-              <span style={{ fontSize: '0.8em', color: 'gray' }}>
+              <span className="task-meta">
                 (Prioridad: {task.priority}, Vence: {new Date(task.dueDate).toLocaleDateString()})
               </span>
-              <button onClick={() => handleDelete(task.id)} style={{ color: 'red' }}>
+              {/* <-- BOTÓN DE ELIMINAR */}
+              <button onClick={() => handleDelete(task.id)} className="delete-button">
                 Eliminar
               </button>
             </li>

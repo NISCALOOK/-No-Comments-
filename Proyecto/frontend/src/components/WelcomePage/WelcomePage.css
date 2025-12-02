@@ -52,7 +52,7 @@
 
 .welcome-subtitle {
   font-size: clamp(1rem, 3vw, 1.3rem);
-  color: #ff6666;
+  color: #f1efef;
   opacity: 0.9;
   letter-spacing: 0.15em;
   margin-bottom: 50px;
@@ -85,8 +85,8 @@
 
 .btn-primary {
   background: linear-gradient(45deg, #cc0000, #ff0000);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e70909;
+  border: 1px solid rgba(151, 6, 6, 0.1);
 }
 
 .btn-primary:hover {
