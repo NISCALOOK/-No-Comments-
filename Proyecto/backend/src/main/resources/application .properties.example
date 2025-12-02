@@ -18,7 +18,7 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 storage.upload-dir=./classmate-uploads
 
 whisper.api.key=
-llm.api.url=https://hubs02225.snia.ch/v1
+llm.api.url=https://integrate.api.nvidia.com/v1
 llm.api.key=
 embeddings.api.url=https://integrate.api.nvidia.com/v1/embeddings
 embeddings.api.key=
