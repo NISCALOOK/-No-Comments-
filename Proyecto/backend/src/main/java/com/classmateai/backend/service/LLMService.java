@@ -131,7 +131,7 @@ public class LLMService {
             Map<String, Object> request = Map.of(
                 "model", "openai/gpt-oss-120b",
                 "messages", List.of(
-                    Map.of("role", "system", "content", "Eres un asistente académico especializado en ayudar a estudiantes con sus clases y apuntes. Usa el contexto proporcionado para dar respuestas precisas y relevantes."),
+                    Map.of("role", "system", "content", "Eres un asistente académico especializado en ayudar a estudiantes con sus clases y apuntes. Usa el contexto proporcionado para dar respuestas precisas y relevantes. Te encuentras en un chat que no entiende formatos como el markdown ni tampoco formatos con caracteres como por ejemplo: ** para negrilla. Por ende vas a manejar texto plano sin formato para que el usuario pueda entender."),
                     Map.of("role", "user", "content", prompt)
                 ),
                 "temperature", 0.5,
