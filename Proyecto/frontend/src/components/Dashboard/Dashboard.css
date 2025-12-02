@@ -1,29 +1,82 @@
-/* globals.css */
+/* Variables CSS */
 :root {
-  /* Paleta de Colores */
-  --color-primary: #FF0000;       /* Rojo intenso */
-  --color-primary-hover: #cc0000; /* Rojo más oscuro */
-  --color-background: #000000;    /* Negro absoluto */
-  --color-text-on-dark: #FFFFFF;  /* Texto blanco */
-  --color-text-shadow: rgba(0, 0, 0, 0.1); /* Sombra sutil */
-
-  /* Tipografía */
-  --font-family-base: 'Montserrat', sans-serif;
-
-  /* Layout */
-  --sidebar-width: 260px;
-  --sidebar-width-collapsed: 70px;
-  
-  /* Espaciado */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 1rem;
-  --spacing-md: 1.5rem;
-  --spacing-lg: 2rem;
+  --color-primary: #FF0000;
+  --color-primary-hover: #cc0000;
+  --color-surface: #1e1e1e;
+  --color-text-on-dark: #FFFFFF;
+  --color-text-shadow: rgba(0, 0, 0, 0.1);
 }
 
-body {
-  margin: 0;
-  font-family: var(--font-family-base);
-  background-color: #121212; /* Un gris muy oscuro en lugar de negro puro para el fondo del body */
-  color: var(--color-text-on-dark);
+/* Layout General */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 260px;
+  height: 100vh;
+  background-color: var(--color-surface);
+  z-index: 1000;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 2px 0 20px rgba(255, 0, 0, 0.1);
+}
+
+.sidebar--open {
+  left: 0;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  padding: 100px 20px 20px;
+  position: relative;
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+  }
+  
+  .main-content {
+    margin-left: 260px;
+  }
+  
+  .content {
+    padding-top: 80px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .sidebar {
+    left: -280px;
+  }
+  
+  .sidebar--open {
+    left: 0;
+  }
+  
+  .main-content {
+    margin-left: 0;
+  }
+  
+  .content {
+    padding-top: 70px;
+  }
 }

@@ -9,11 +9,10 @@ const sidebarLinksConfig = [
   { path: '/dashboard/home', label: 'Inicio' },
   { path: '/dashboard/upload', label: 'Subir Audio' },
   { path: '/dashboard/transcription', label: 'Transcripción' },
-  { path: '/dashboard/summary', label: 'Resumen' },
   { path: '/dashboard/tasks', label: 'Tareas' },
   { path: '/dashboard/calendar', label: 'Calendario' },
   { path: '/dashboard/chat', label: 'Chat IA' },
-  { path: '/dashboard/export', label: 'Exportar' },
+  
 ];
 
 interface SidebarProps {

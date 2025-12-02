@@ -2,6 +2,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'; // <-- 1. Importa RouterProvider
+import './index.css'; 
+
 
 // Importa tu objeto 'router' desde donde lo hayas definido
 // (Probablemente se llama 'router' o 'appRouter' y está en ./router/index.ts o similar)

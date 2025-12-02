@@ -2,15 +2,15 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { uploadAudio, getTranscriptionStatus } from '../../../api/transcriptions';
 import { useAuthStore } from '../../../store';
-import { TranscriptionStatus } from '../../../types'; // Valor
+import { TranscriptionStatus } from '../../../types';
 import type { Transcription} from '../../../types';
+import './AudioUpload.css'; // Asegúrate de que esta línea está presente
 
 const AudioUpload: React.FC = () => {
   const { token } = useAuthStore();
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [currentTranscription, setCurrentTranscription] = useState<Transcription | null>(null);
-
   const [error, setError] = useState<string | null>(null);
   const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -26,7 +26,6 @@ const AudioUpload: React.FC = () => {
     try {
       const status = await getTranscriptionStatus(id);
       setCurrentTranscription(status);
-      // Ahora TypeScript sabe que `status.status` es de tipo `TranscriptionStatus`
       if (status.status === 'COMPLETED' || status.status === 'ERROR') {
         setIsUploading(false);
         if (pollingIntervalRef.current) {
@@ -44,39 +43,28 @@ const AudioUpload: React.FC = () => {
 
   const handleUpload = async () => {
     if (!file || !token) return;
-
     setIsUploading(true);
     setError(null);
     try {
       const newTranscription = await uploadAudio(file);
       setCurrentTranscription(newTranscription);
-
       pollingIntervalRef.current = setInterval(() => {
         pollStatus(newTranscription.id);
       }, 3000);
-
     } catch (err: any) {
-    // --- MEJORA CLAVE AQUÍ ---
-    console.error("Error completo al subir archivo:", err); // <-- Añade esto para verlo en la consola del navegador
-
-    let errorMessage = 'Error al subir el archivo.'; // Mensaje por defecto
-
-    if (err.response) {
-      // El servidor respondió con un código de error (4xx, 5xx)
-      console.error("Datos del error del servidor:", err.response.data);
-      // Intenta obtener el mensaje de error del cuerpo de la respuesta
-      errorMessage = err.response.data?.message || JSON.stringify(err.response.data);
-    } else if (err.request) {
-      // La petición se hizo pero no hubo respuesta (problema de red)
-      errorMessage = 'No se pudo conectar con el servidor. Revisa tu conexión.';
-    } else {
-      // Otro tipo de error (ej. error de configuración de axios)
-      errorMessage = err.message;
+      console.error("Error completo al subir archivo:", err);
+      let errorMessage = 'Error al subir el archivo.';
+      if (err.response) {
+        console.error("Datos del error del servidor:", err.response.data);
+        errorMessage = err.response.data?.message || JSON.stringify(err.response.data);
+      } else if (err.request) {
+        errorMessage = 'No se pudo conectar con el servidor. Revisa tu conexión.';
+      } else {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
+      setIsUploading(false);
     }
-    
-    setError(errorMessage);
-    setIsUploading(false);
-  }
   };
 
   React.useEffect(() => {
@@ -88,28 +76,46 @@ const AudioUpload: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <h2>Subir Audio para Transcribir</h2>
-      <input type="file" accept="audio/*" onChange={handleFileChange} disabled={isUploading} />
-      <button onClick={handleUpload} disabled={!file || isUploading}>
-        {isUploading ? 'Procesando...' : 'Subir y Transcribir'}
-      </button>
+    // <-- CLASE PRINCIPAL AÑADIDA
+    <div className="audio-upload-container"> 
+      <h2 className="audio-upload-header">Subir Audio para Transcribir</h2>
+      
+      {/* <-- SECCIÓN DE CONTROLES AÑADIDA */}
+      <div className="upload-controls">
+        <input 
+          type="file" 
+          accept="audio/*" 
+          onChange={handleFileChange} 
+          disabled={isUploading}
+          className="file-input" 
+        />
+        <button 
+          onClick={handleUpload} 
+          disabled={!file || isUploading}
+          className="upload-button"
+        >
+          {isUploading ? 'Procesando...' : 'Subir y Transcribir'}
+        </button>
+      </div>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {/* <-- CLASE DE ERROR AÑADIDA (reemplaza el estilo en línea) */}
+      {error && <p className="error-message">{error}</p>}
 
       {currentTranscription && (
-        <div>
-          <h3>Estado de la Transcripción</h3>
-          <p><strong>ID:</strong> {currentTranscription.id}</p>
-          <p><strong>Título:</strong> {currentTranscription.title}</p>
-          <p><strong>Estado:</strong> {currentTranscription.status}</p>
+        // <-- SECCIÓN DE ESTADO AÑADIDA
+        <div className="transcription-status">
+          <h3 className="status-title">Estado de la Transcripción</h3>
+          <p className="status-info"><strong>ID:</strong> {currentTranscription.id}</p>
+          <p className="status-info"><strong>Título:</strong> {currentTranscription.title}</p>
+          <p className="status-info"><strong>Estado:</strong> {currentTranscription.status}</p>
           
-          {/* Gracias al tipado correcto, aquí TypeScript nos ayudará con autocompletado y validación */}
           {currentTranscription.status === TranscriptionStatus.COMPLETED && (
-            <p>✅ ¡Transcripción completada! Puedes verla en la sección de <a href="/dashboard/transcription">Transcripciones</a>.</p>
+            // <-- CLASE DE ÉXITO AÑADIDA
+            <p className="status-completed">✅ ¡Transcripción completada! Puedes verla en la sección de <a href="/dashboard/transcription">Transcripciones</a>.</p>
           )}
           {currentTranscription.status === TranscriptionStatus.ERROR && (
-             <p>❌ Ocurrió un error durante el procesamiento.</p>
+            // <-- CLASE DE ERROR DE ESTADO AÑADIDA
+            <p className="status-error">❌ Ocurrió un error durante el procesamiento.</p>
           )}
         </div>
       )}
