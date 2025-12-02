@@ -11,6 +11,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import AudioUpload from './components/Dashboard/AudioUpload/AudioUpload';
 import ChatAIView from './components/Dashboard/ChatAI/ChatAIView';
 import CalendarSyncView from './components/Dashboard/CalendarSync/CalendarSyncView';
+import CalendarCallback from './components/Dashboard/CalendarSync/CalendarCallback';
 import TranscriptionViewer from './components/Dashboard/TranscriptionViewer/TranscriptionViewer';
 import Export from './components/Dashboard/Export/ExportView';
 import TasksList from './components/Dashboard/Tasks/TasksList';
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
   },
   {
     // 3. Estructura de rutas protegida mejorada.
+    path: '/calendar/callback',
+    element: <CalendarCallback />,
+  },
+  {
     path: '/dashboard',
     element: (
       <ProtectedRoute>
