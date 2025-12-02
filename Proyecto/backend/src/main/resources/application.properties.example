@@ -1,0 +1,27 @@
+spring.application.name=backend
+server.port=8080
+
+# Aumentar límite de subida de archivos (50MB)
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/classmate_db_ai
+spring.datasource.username=prueba
+spring.datasource.password=prueba
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+storage.upload-dir=./classmate-uploads
+
+whisper.api.key=
+llm.api.url=https://hubs02225.snia.ch/v1
+llm.api.key=
+embeddings.api.url=https://integrate.api.nvidia.com/v1/embeddings
+embeddings.api.key=
+google.client.id=807969473440-5srv0gicff8b78o9liqkk4naohk2h5jc.apps.googleusercontent.com
+google.client.secret=
+google.redirect.uri=http://localhost:8080/oauth2/callback
