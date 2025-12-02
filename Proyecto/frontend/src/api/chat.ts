@@ -36,7 +36,7 @@ export interface ChatRequest {
 }
 
 export interface ChatResponse {
-  response: string;
+   message: string;
 }
 
 export const sendMessage = async (payload: ChatRequest): Promise<ChatResponse> => {
