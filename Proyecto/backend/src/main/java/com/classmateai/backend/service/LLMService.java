@@ -49,7 +49,7 @@ public class LLMService {
         String prompt = buildSummaryPrompt(fullText);
         
         Map<String, Object> request = Map.of(
-            "model", "minimax-m2-free",
+            "model", "openai/gpt-oss-120b",
             "messages", List.of(
                 Map.of("role", "user", "content", prompt)
             ),
@@ -78,7 +78,7 @@ public class LLMService {
         String prompt = buildTagsPrompt(fullText, summary);
         
         Map<String, Object> request = Map.of(
-            "model", "minimax-m2-free",
+            "model", "openai/gpt-oss-120b",
             "messages", List.of(
                 Map.of("role", "user", "content", prompt)
             ),
@@ -129,7 +129,7 @@ public class LLMService {
             String prompt = buildChatPrompt(message, fullContext);
             
             Map<String, Object> request = Map.of(
-                "model", "minimax-m2-free",
+                "model", "openai/gpt-oss-120b",
                 "messages", List.of(
                     Map.of("role", "system", "content", "Eres un asistente académico especializado en ayudar a estudiantes con sus clases y apuntes. Usa el contexto proporcionado para dar respuestas precisas y relevantes."),
                     Map.of("role", "user", "content", prompt)
@@ -400,7 +400,7 @@ public class LLMService {
                 """, currentDate, currentDayOfWeek, transcriptionText, summary);
             
             Map<String, Object> request = Map.of(
-                "model", "minimax-m2-free",
+                "model", "openai/gpt-oss-120b",
                 "messages", List.of(
                     Map.of("role", "system", "content", "Eres un asistente académico experto en identificar tareas y fechas de entrega en transcripciones de clases."),
                     Map.of("role", "user", "content", prompt)
