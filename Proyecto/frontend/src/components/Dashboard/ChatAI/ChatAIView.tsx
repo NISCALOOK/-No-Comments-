@@ -28,6 +28,11 @@ const ChatAIView: React.FC = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+   const cleanAiResponse = (rawResponse: string): string => {
+   const cleanedResponse = rawResponse.replace(/<think>.*?<\/think>/gs, '').trim();
+   return cleanedResponse;
+    };
+
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -38,14 +43,17 @@ const ChatAIView: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const { response } = await sendMessage({
+      const { message } = await sendMessage({
         message: input,
         transcriptionId: selectedTranscriptionId,
       });
-      const assistantMessage: ChatMessage = { role: 'assistant', content: response };
+      
+     const cleanedMessage = cleanAiResponse(message);
+     
+      const assistantMessage: ChatMessage = { role: 'assistant', content: cleanedMessage };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error: any) {
-      const errorMessage: ChatMessage = { role: 'assistant', content: `Error: ${error.response?.data?.message || 'No se pudo conectar con el asistente.'}` };
+      const errorMessage: ChatMessage = { role: 'assistant', content: `Error: ${error.message?.data?.message || 'No se pudo conectar con el asistente.'}` };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
@@ -71,7 +79,7 @@ const ChatAIView: React.FC = () => {
         {messages.map((msg, index) => (
           <div key={index} style={{ marginBottom: '0.5rem', textAlign: msg.role === 'user' ? 'right' : 'left' }}>
             <strong>{msg.role === 'user' ? 'Tú:' : 'IA:'}</strong>
-            <p style={{ background: msg.role === 'user' ? '#d1e7ff' : '#f0f0f0', padding: '0.5rem', borderRadius: '5px', display: 'inline-block' }}>
+            <p style={{ background: msg.role === 'user' ? '#d1e7ff' : '#f01212ff', padding: '0.5rem', borderRadius: '5px', display: 'inline-block' }}>
               {msg.content}
             </p>
           </div>
