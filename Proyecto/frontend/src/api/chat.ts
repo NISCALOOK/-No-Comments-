@@ -1,30 +1,32 @@
-// src/api/chat.ts
+// src/api/chat.ts 
 
 import axios from 'axios'; 
 import type { AxiosInstance, AxiosResponse } from 'axios';
 
+
+import { useAuthStore } from '../store'; 
+
 const api: AxiosInstance = axios.create({
-  // En Vite
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-
 api.interceptors.request.use(
   (config) => {
+   
+    const state = useAuthStore.getState(); 
     
-    const token = localStorage.getItem('authToken');
+    
+    const token = state.token; 
 
     if (token) {
- 
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
   (error) => {
-   
     return Promise.reject(error);
   }
 );

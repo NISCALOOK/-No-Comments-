@@ -11,6 +11,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@types/axios": "^0.9.36",
     "axios": "^1.13.2",
     "date-fns": "^4.1.0",
     "react": "^19.1.1",

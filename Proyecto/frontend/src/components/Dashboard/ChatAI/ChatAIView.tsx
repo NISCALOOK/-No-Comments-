@@ -28,6 +28,11 @@ const ChatAIView: React.FC = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+   const cleanAiResponse = (rawResponse: string): string => {
+   const cleanedResponse = rawResponse.replace(/<think>.*?<\/think>/gs, '').trim();
+   return cleanedResponse;
+    };
+
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -42,9 +47,10 @@ const ChatAIView: React.FC = () => {
         message: input,
         transcriptionId: selectedTranscriptionId,
       });
-
+      
+     const cleanedMessage = cleanAiResponse(message);
      
-      const assistantMessage: ChatMessage = { role: 'assistant', content: message };
+      const assistantMessage: ChatMessage = { role: 'assistant', content: cleanedMessage };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error: any) {
       const errorMessage: ChatMessage = { role: 'assistant', content: `Error: ${error.message?.data?.message || 'No se pudo conectar con el asistente.'}` };
